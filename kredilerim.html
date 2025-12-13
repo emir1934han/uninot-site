@@ -20,7 +20,7 @@
                 <li><a href="index.html">Anasayfa</a></li>
                 <li><a href="not-al.html">Not Satın Al</a></li>
                 <li><a href="notpaylas.html">Not Paylaş</a></li> 
-                <li><a href="#" id="logoutBtn" style="color:red; font-weight:bold;">Çıkış Yap</a></li>
+                <li><button id="logoutBtn" style="background:none; border:none; color:red; font-weight:600; cursor:pointer;">Çıkış Yap</button></li>
             </ul>
             <div class="hamburger">
                 <i class="fa-solid fa-bars"></i>
@@ -33,14 +33,14 @@
             
             <div class="dashboard-header">
                 <div class="welcome-text">
-                    <h1>Hoşgeldin, <span id="userNameDisplay">Öğrenci</span> 👋</h1>
-                    <p>Hesap bakiyeni ve geçmiş işlemlerini buradan yönetebilirsin.</p>
+                    <h1>Hoşgeldin, <span id="userNameDisplay">Yükleniyor...</span> 👋</h1>
+                    <p id="userUniDisplay" style="color:#666; font-size:0.9rem;">...</p>
                 </div>
                 
                 <div class="wallet-card">
                     <div class="card-content">
                         <span>Toplam Bakiye</span>
-                        <h2>₺ 1.250,00</h2>
+                        <h2 id="userBalance">₺ ...</h2>
                         <div class="card-actions">
                             <button class="btn-wallet btn-withdraw"><i class="fa-solid fa-arrow-up-from-bracket"></i> Çek</button>
                             <button class="btn-wallet btn-deposit"><i class="fa-solid fa-plus"></i> Yükle</button>
@@ -64,41 +64,11 @@
                                 <th>Tutar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="transactionsBody">
                             <tr>
-                                <td>
-                                    <div class="trans-info">
-                                        <div class="icon-circle income"><i class="fa-solid fa-file-arrow-down"></i></div>
-                                        <span>Matematik 1 Notu Satıldı</span>
-                                    </div>
+                                <td colspan="4" style="text-align:center; padding:20px; color:#999;">
+                                    İşlem geçmişi yükleniyor...
                                 </td>
-                                <td>05 Ara 2025</td>
-                                <td><span class="badge-success">Tamamlandı</span></td>
-                                <td class="amount-plus">+ ₺50,00</td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <div class="trans-info">
-                                        <div class="icon-circle expense"><i class="fa-solid fa-cart-shopping"></i></div>
-                                        <span>Fizik 2 Notu Alındı</span>
-                                    </div>
-                                </td>
-                                <td>03 Ara 2025</td>
-                                <td><span class="badge-success">Tamamlandı</span></td>
-                                <td class="amount-minus">- ₺30,00</td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <div class="trans-info">
-                                        <div class="icon-circle withdraw"><i class="fa-solid fa-building-columns"></i></div>
-                                        <span>Banka Hesabına Çekim</span>
-                                    </div>
-                                </td>
-                                <td>01 Ara 2025</td>
-                                <td><span class="badge-pending">İşleniyor</span></td>
-                                <td class="amount-minus">- ₺200,00</td>
                             </tr>
                         </tbody>
                     </table>
@@ -112,31 +82,11 @@
         <div class="container footer-content">
             <div class="footer-brand">
                 <h2>UniNot</h2>
-                <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                </div>
+                <p>Öğrencilerin dijital kütüphanesi.</p>
             </div>
-            <div class="footer-menu">
-                <h3>Platform</h3>
-                <ul>
-                    <li><a href="#">Nasıl Çalışır?</a></li>
-                    <li><a href="#">Not Ara</a></li>
-                    <li><a href="#">Fiyatlandırma</a></li>
-                </ul>
+            <div class="copyright">
+                <p>&copy; 2025 UniNot.</p>
             </div>
-            <div class="footer-menu">
-                <h3>Kurumsal</h3>
-                <ul>
-                    <li><a href="#">Hakkımızda</a></li>
-                    <li><a href="#">İletişim</a></li>
-                    <li><a href="#">Gizlilik Politikası</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2025 UniNot. Tüm hakları saklıdır.</p>
         </div>
     </footer>
 
@@ -145,23 +95,61 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        async function checkAuth() {
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userUniDisplay = document.getElementById('userUniDisplay');
+        const userBalance = document.getElementById('userBalance');
+        const transactionsBody = document.getElementById('transactionsBody');
+
+        async function loadUserData() {
+            // 1. Giriş Yapan Kullanıcıyı Bul
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-                // Giriş yapmamışsa kayıt sayfasına yönlendir
+                // Giriş yapmamışsa at
                 window.location.href = "Kayit.html";
-            } else {
-                // İsim alanına kullanıcının e-postasını veya adını yaz
-                // Eğer profiles tablosundan isim çekmek istersen burayı geliştirebiliriz
-                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+                return;
             }
-        }
-        checkAuth();
 
-        // Çıkış Butonu
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
+            // 2. Profil Tablosundan Detayları Çek (İsim, Okul, Bakiye)
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('full_name, university, department, credits')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                console.error("Profil hatası:", error);
+                userNameDisplay.innerText = "Öğrenci";
+                return;
+            }
+
+            // 3. Verileri Ekrana Yaz
+            userNameDisplay.innerText = profile.full_name || user.email.split('@')[0];
+            
+            if(profile.university && profile.department) {
+                userUniDisplay.innerText = `${profile.university} - ${profile.department}`;
+            } else {
+                userUniDisplay.innerText = "Profil bilgileri eksik.";
+            }
+
+            // Bakiyeyi Yaz (Varsa yaz, yoksa 0.00 TL)
+            const balance = profile.credits ? profile.credits : 0;
+            userBalance.innerText = `₺ ${parseFloat(balance).toFixed(2)}`;
+
+            // 4. (Şimdilik) İşlem Geçmişi Boş Uyarısı
+            transactionsBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center; padding:20px; color:#666;">
+                        Henüz bir hesap hareketiniz bulunmuyor.
+                    </td>
+                </tr>
+            `;
+        }
+
+        loadUserData();
+
+        // Çıkış Yap Butonu
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.href = "index.html";
         });
