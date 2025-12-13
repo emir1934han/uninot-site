@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kredilerim | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="Anasayfa.css">
+    
+    <link rel="stylesheet" href="Kredilerim.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> UniNot
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Anasayfa</a></li>
+                <li><a href="not-al.html">Not Satın Al</a></li>
+                <li><a href="notpaylas.html" class="active-link">Not paylaş</a></li> <li><a href="Kayit.html" class="btn-register">Kayıt Ol</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-section">
+        <div class="container">
+            
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Kredilerim</h1>
+                    <p>Hesap bakiyeni ve geçmiş işlemlerini buradan yönetebilirsin.</p>
+                </div>
+                
+                <div class="wallet-card">
+                    <div class="card-content">
+                        <span>Toplam Bakiye</span>
+                        <h2>₺ 1.250,00</h2>
+                        <div class="card-actions">
+                            <button class="btn-wallet btn-withdraw"><i class="fa-solid fa-arrow-up-from-bracket"></i> Çek</button>
+                            <button class="btn-wallet btn-deposit"><i class="fa-solid fa-plus"></i> Yükle</button>
+                        </div>
+                    </div>
+                    <div class="card-decoration">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transactions-panel">
+                <h3>Son İşlemler</h3>
+                <div class="table-responsive">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>İşlem Adı</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                                <th>Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="trans-info">
+                                        <div class="icon-circle income"><i class="fa-solid fa-file-arrow-down"></i></div>
+                                        <span>Matematik 1 Notu Satıldı</span>
+                                    </div>
+                                </td>
+                                <td>05 Ara 2025</td>
+                                <td><span class="badge-success">Tamamlandı</span></td>
+                                <td class="amount-plus">+ ₺50,00</td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="trans-info">
+                                        <div class="icon-circle expense"><i class="fa-solid fa-cart-shopping"></i></div>
+                                        <span>Fizik 2 Notu Alındı</span>
+                                    </div>
+                                </td>
+                                <td>03 Ara 2025</td>
+                                <td><span class="badge-success">Tamamlandı</span></td>
+                                <td class="amount-minus">- ₺30,00</td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="trans-info">
+                                        <div class="icon-circle withdraw"><i class="fa-solid fa-building-columns"></i></div>
+                                        <span>Banka Hesabına Çekim</span>
+                                    </div>
+                                </td>
+                                <td>01 Ara 2025</td>
+                                <td><span class="badge-pending">İşleniyor</span></td>
+                                <td class="amount-minus">- ₺200,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h2>UniNot</h2>
+                <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-menu">
+                <h3>Platform</h3>
+                <ul>
+                    <li><a href="#">Nasıl Çalışır?</a></li>
+                    <li><a href="#">Not Ara</a></li>
+                    <li><a href="#">Fiyatlandırma</a></li>
+                </ul>
+            </div>
+            <div class="footer-menu">
+                <h3>Kurumsal</h3>
+                <ul>
+                    <li><a href="#">Hakkımızda</a></li>
+                    <li><a href="#">İletişim</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 UniNot. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

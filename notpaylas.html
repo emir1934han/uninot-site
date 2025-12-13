@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Paylaş | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="Anasayfa.css">
+    <link rel="stylesheet" href="NotPaylas.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> UniNot
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Anasayfa</a></li>
+                <li><a href="not-al.html" class="active-link">Not Satın al</a></li>
+                <li><a href="kredilerim.html">Kredilerim</a></li>
+                <li><a href="kayit.html" class="btn-register" id="authBtn">Kayıt Ol</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section class="upload-section">
+        <div class="container">
+            
+            <div class="upload-header">
+                <h1>Ders Notunu Paylaş</h1>
+                <p>Notlarını yükle, fiyatını belirle ve kazanmaya başla.</p>
+            </div>
+
+            <div class="upload-container">
+                <form id="uploadForm" class="upload-form">
+                    
+                    <div class="file-drop-area">
+                        <span class="fake-btn">Dosya Seç</span>
+                        <span class="file-msg">veya sürükleyip buraya bırak</span>
+                        <input class="file-input" id="fileInput" type="file" accept=".pdf,.doc,.docx" required>
+                        <div class="icon-bg"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    </div>
+
+                    <div class="form-grid">
+                        
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-book"></i> Ders Adı</label>
+                            <input type="text" id="lessonName" placeholder="Örn: Matematik 1 - Vize Notları" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-layer-group"></i> Bölüm / Kategori</label>
+                            <select id="category" required>
+                                <option value="" disabled selected>Seçiniz...</option>
+                                <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                                <option value="Hukuk">Hukuk</option>
+                                <option value="Tıp">Tıp</option>
+                                <option value="İşletme">İşletme</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-building-columns"></i> Üniversite</label>
+                            <input type="text" id="university" placeholder="Örn: İstanbul Üniversitesi" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-tag"></i> Fiyat (₺)</label>
+                            <input type="number" id="price" placeholder="Örn: 50" required min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label><i class="fa-solid fa-pen"></i> Not Hakkında Açıklama</label>
+                        <textarea id="description" rows="4" placeholder="Notun içeriği hakkında bilgi ver... (Hangi konular var, kaç sayfa vb.)" required></textarea>
+                    </div>
+
+                    <div class="form-action">
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-paper-plane"></i> Yayına Al
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h2>UniNot</h2>
+                <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-menu">
+                <h3>Platform</h3>
+                <ul>
+                    <li><a href="#">Nasıl Çalışır?</a></li>
+                    <li><a href="#">Not Ara</a></li>
+                    <li><a href="#">Fiyatlandırma</a></li>
+                </ul>
+            </div>
+            <div class="footer-menu">
+                <h3>Kurumsal</h3>
+                <ul>
+                    <li><a href="#">Hakkımızda</a></li>
+                    <li><a href="#">İletişim</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 UniNot. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+   <script type="module">
+        import { supabase } from './supabase.js';
+
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileMsg = document.querySelector('.file-msg');
+        const submitBtn = document.querySelector('.btn-submit');
+        const authBtn = document.getElementById('authBtn');
+        let currentUser = null;
+
+        // Dosya ismi gösterme
+        fileInput.addEventListener('change', () => {
+            if(fileInput.files.length > 0) fileMsg.textContent = fileInput.files[0].name;
+        });
+
+        // Giriş Kontrolü
+        async function checkUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                currentUser = user;
+                authBtn.innerText = "Hesabım";
+                authBtn.href = "kredilerim.html"; 
+            } else {
+                alert("Önce kayıt olup giriş yapmalısınız.");
+                window.location.href = "Kayit.html";
+            }
+        }
+        checkUser();
+
+        // Yükleme İşlemi
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            submitBtn.innerHTML = 'Yükleniyor...';
+            submitBtn.disabled = true;
+
+            const file = fileInput.files[0];
+            // Türkçe karakter sorunu olmasın diye ismi temizleyelim
+            const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
+            const fileName = `${Date.now()}_${cleanName}`;
+
+            try {
+                // 1. Dosyayı Yükle
+                const { error: uploadError } = await supabase.storage
+                    .from('notlar')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                // 2. URL al
+                const { data: urlData } = supabase.storage
+                    .from('notlar')
+                    .getPublicUrl(fileName);
+
+                // 3. Veritabanına Yaz
+                const { error: dbError } = await supabase.from('notes').insert([{
+                    lesson_name: document.getElementById('lessonName').value,
+                    category: document.getElementById('category').value,
+                    university: document.getElementById('university').value,
+                    price: document.getElementById('price').value,
+                    description: document.getElementById('description').value,
+                    file_url: urlData.publicUrl,
+                    author_id: currentUser.id,
+                    author_email: currentUser.email
+                }]);
+
+                if (dbError) throw dbError;
+
+                alert("Not başarıyla yüklendi!");
+                window.location.href = "not-al.html";
+
+            } catch (error) {
+                alert("Hata: " + error.message);
+                console.error(error);
+            } finally {
+                submitBtn.innerHTML = 'Yayına Al';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

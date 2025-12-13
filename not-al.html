@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Satın Al | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Anasayfa.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> UniNot
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Anasayfa</a></li>
+                <li><a href="notpaylas.html">Not Paylaş</a></li> <li><a href="kredilerim.html" class="active">Kredilerim</a></li>
+                <li><a href="kayit.html" class="btn-register">Kayıt Ol</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Aradığın Dersi Bul 📚</h1>
+            <p>Binlerce ders notu arasında arama yap, eksiklerini tamamla.</p>
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Ders adı, üniversite veya konu ara...">
+                <button>Ara</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="shop-section">
+        <div class="container shop-layout">
+            
+            <aside class="sidebar">
+                <div class="filter-group">
+                    <h3>Kategoriler</h3>
+                    <ul>
+                        <li><input type="checkbox" id="cat1"> <label for="cat1">Bilgisayar Müh.</label></li>
+                        <li><input type="checkbox" id="cat2"> <label for="cat2">Hukuk</label></li>
+                        <li><input type="checkbox" id="cat3"> <label for="cat3">Tıp</label></li>
+                        <li><input type="checkbox" id="cat4"> <label for="cat4">İşletme</label></li>
+                        <li><input type="checkbox" id="cat5"> <label for="cat5">Psikoloji</label></li>
+                    </ul>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Fiyat Aralığı</h3>
+                    <div class="price-range">
+                        <input type="range" min="0" max="500">
+                        <div class="price-labels">
+                            <span>0₺</span>
+                            <span>500₺</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Puan</h3>
+                    <ul>
+                        <li><input type="radio" name="star"> <label>⭐⭐⭐⭐⭐ (5)</label></li>
+                        <li><input type="radio" name="star"> <label>⭐⭐⭐⭐ (4+)</label></li>
+                        <li><input type="radio" name="star"> <label>⭐⭐⭐ (3+)</label></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <main class="notes-grid">
+                
+                <div class="note-card">
+                    <div class="card-image">
+                        <span class="badge-price">50₺</span>
+                        <i class="fa-regular fa-file-pdf"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="university">İstanbul Üniversitesi</div>
+                        <h3>Medeni Hukuk Giriş</h3>
+                        <div class="author">
+                            <i class="fa-solid fa-user-pen"></i> Emirhan Y.
+                        </div>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i> 4.8 (120 İndirme)
+                        </div>
+                        <a href="#" class="btn-buy">Detayları Gör</a>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <div class="card-image color-blue">
+                        <span class="badge-price">Ücretsiz</span>
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="university">ODTÜ</div>
+                        <h3>Python ile Veri Yapıları</h3>
+                        <div class="author">
+                            <i class="fa-solid fa-user-pen"></i> Ayşe K.
+                        </div>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i> 5.0 (340 İndirme)
+                        </div>
+                        <a href="#" class="btn-buy">Detayları Gör</a>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <div class="card-image color-green">
+                        <span class="badge-price">75₺</span>
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="university">Hacettepe Tıp</div>
+                        <h3>Anatomi - Kemikler</h3>
+                        <div class="author">
+                            <i class="fa-solid fa-user-pen"></i> Mehmet D.
+                        </div>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i> 4.5 (85 İndirme)
+                        </div>
+                        <a href="#" class="btn-buy">Detayları Gör</a>
+                    </div>
+                </div>
+
+                 <div class="note-card">
+                    <div class="card-image color-purple">
+                        <span class="badge-price">30₺</span>
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="university">İTÜ</div>
+                        <h3>Lineer Cebir Notları</h3>
+                        <div class="author">
+                            <i class="fa-solid fa-user-pen"></i> Zeynep A.
+                        </div>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i> 4.2 (50 İndirme)
+                        </div>
+                        <a href="#" class="btn-buy">Detayları Gör</a>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h2>UniNot</h2>
+                <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-menu">
+                <h3>Platform</h3>
+                <ul>
+                    <li><a href="#">Nasıl Çalışır?</a></li>
+                    <li><a href="#">Not Ara</a></li>
+                    <li><a href="#">Fiyatlandırma</a></li>
+                </ul>
+            </div>
+            <div class="footer-menu">
+                <h3>Kurumsal</h3>
+                <ul>
+                    <li><a href="#">Hakkımızda</a></li>
+                    <li><a href="#">İletişim</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 UniNot. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
