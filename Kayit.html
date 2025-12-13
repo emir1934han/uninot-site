@@ -3,10 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kayıt Ol | UniNot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Giriş Yap & Kayıt Ol | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+
+    <style>
+        /* Bu Sayfaya Özel Stil Eklemeleri */
+        .auth-toggle {
+            display: flex;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .toggle-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            transition: 0.3s;
+        }
+        .toggle-btn.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .auth-card {
+            max-width: 500px; /* Genişliği biraz artırdık */
+        }
+    </style>
 </head>
 <body>
 
@@ -16,10 +49,10 @@
                 <i class="fa-solid fa-graduation-cap"></i> UniNot
             </div>
             <ul class="nav-links">
-                <li><a href="index.html#not-paylas">Not Paylaş</a></li>
-                <li><a href="index.html#not-al">Not Satın Al</a></li>
-                <li><a href="index.html#kredilerim">Kredilerim</a></li>
-                <li><a href="#" class="btn-register">Kayıt Ol</a></li>
+                <li><a href="index.html">Anasayfa</a></li>
+                <li><a href="not-al.html">Not Satın Al</a></li>
+                <li><a href="notpaylas.html">Not Paylaş</a></li>
+                <li><a href="kredilerim.html">Kredilerim</a></li>
             </ul>
             <div class="hamburger">
                 <i class="fa-solid fa-bars"></i>
@@ -30,40 +63,87 @@
     <section class="auth-section">
         <div class="auth-container">
             <div class="auth-card">
-                <h2>Aramıza Katıl 🚀</h2>
-                <p>Notlarını paylaşmaya veya eksiklerini tamamlamaya hemen başla.</p>
                 
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label>Ad Soyad</label>
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" id="nameInput" placeholder="Örn: Emirhan Yılmaz" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>E-posta Adresi</label>
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-envelope"></i>
-                            <input type="email" id="emailInput" placeholder="ogrenci@universite.edu.tr" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Şifre</label>
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-lock"></i>
-                            <input type="password" id="passwordInput" placeholder="Güçlü bir şifre oluştur" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="submitBtn">Hesap Oluştur</button>
-                </form>
-
-                <div class="auth-footer">
-                    <p>Zaten hesabın var mı? <a href="#">Giriş Yap</a></p>
+                <div class="auth-toggle">
+                    <button class="toggle-btn" id="showLoginBtn">Giriş Yap</button>
+                    <button class="toggle-btn active" id="showRegisterBtn">Kayıt Ol</button>
                 </div>
+
+                <div id="registerContainer">
+                    <h2>Aramıza Katıl 🚀</h2>
+                    <p>Notlarını paylaşmak ve kazanmak için hemen üye ol.</p>
+                    
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Ad Soyad</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user"></i>
+                                <input type="text" id="regName" placeholder="Örn: Emirhan Yılmaz" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label>Üniversite</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                    <input type="text" id="regUni" placeholder="Örn: İstanbul Üni" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Bölüm</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-book-open"></i>
+                                    <input type="text" id="regDept" placeholder="Örn: Hukuk" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>E-posta Adresi</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="regEmail" placeholder="ogrenci@site.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="regPass" placeholder="En az 6 karakter" required minlength="6">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="regBtn">Hesap Oluştur</button>
+                    </form>
+                </div>
+
+                <div id="loginContainer" class="hidden">
+                    <h2>Tekrar Hoşgeldin 👋</h2>
+                    <p>Kaldığın yerden devam etmek için giriş yap.</p>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>E-posta Adresi</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="loginEmail" placeholder="ogrenci@site.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="loginPass" placeholder="Şifreniz" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="loginBtn">Giriş Yap</button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </section>
@@ -72,40 +152,60 @@
         <div class="container footer-content">
             <div class="footer-brand">
                 <h2>UniNot</h2>
-                <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
+                <p>Öğrencilerin dijital kütüphanesi.</p>
             </div>
-            <div class="footer-menu">
-                <h3>Kurumsal</h3>
-                <ul>
-                    <li><a href="#">Hakkımızda</a></li>
-                    <li><a href="#">İletişim</a></li>
-                </ul>
+            <div class="copyright">
+                <p>&copy; 2025 UniNot.</p>
             </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2025 UniNot. Tüm hakları saklıdır.</p>
         </div>
     </footer>
 
-   <script type="module">
+    <script src="script.js"></script>
+
+    <script type="module">
         import { supabase } from './supabase.js';
 
-        const registerForm = document.getElementById('registerForm');
-        const submitBtn = document.getElementById('submitBtn');
+        // Elementleri Seçelim
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const showRegisterBtn = document.getElementById('showRegisterBtn');
+        const loginContainer = document.getElementById('loginContainer');
+        const registerContainer = document.getElementById('registerContainer');
 
+        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
+        const regBtn = document.getElementById('regBtn');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // 1. Ekranlar Arası Geçiş (Toggle)
+        showLoginBtn.addEventListener('click', () => {
+            loginContainer.classList.remove('hidden');
+            registerContainer.classList.add('hidden');
+            showLoginBtn.classList.add('active');
+            showRegisterBtn.classList.remove('active');
+        });
+
+        showRegisterBtn.addEventListener('click', () => {
+            registerContainer.classList.remove('hidden');
+            loginContainer.classList.add('hidden');
+            showRegisterBtn.classList.add('active');
+            showLoginBtn.classList.remove('active');
+        });
+
+        // 2. KAYIT OLMA İŞLEMİ
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Kayıt Yapılıyor...";
-            submitBtn.disabled = true;
+            regBtn.innerText = "Kayıt Yapılıyor...";
+            regBtn.disabled = true;
 
-            const name = document.getElementById('nameInput').value;
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
+            const name = document.getElementById('regName').value;
+            const uni = document.getElementById('regUni').value;
+            const dept = document.getElementById('regDept').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPass').value;
 
             try {
-                // 1. Supabase Auth ile Kayıt
+                // A) Supabase Auth'a Kayıt Et
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password
@@ -113,30 +213,75 @@
 
                 if (error) throw error;
 
-                // 2. Profil Tablosuna Yaz
+                // B) Detayları 'profiles' Tablosuna Ekle
                 if (data.user) {
                     const { error: profileError } = await supabase
                         .from('profiles')
                         .insert([{ 
                             id: data.user.id, 
                             full_name: name, 
-                            email: email 
+                            email: email,
+                            university: uni,     // Yeni eklediğimiz sütun
+                            department: dept     // Yeni eklediğimiz sütun
                         }]);
                     
-                    if (profileError) console.error("Profil hatası:", profileError);
+                    if (profileError) throw profileError;
                 }
 
-                alert("Tebrikler! Kayıt Başarılı. Giriş yapabilirsiniz.");
-                // Burada normalde giriş sayfasına atarız ama şimdilik anasayfa
-                window.location.href = "index.html"; 
+                alert("Kayıt Başarılı! Giriş yapılıyor...");
+                window.location.href = "kredilerim.html"; 
 
             } catch (error) {
                 alert("Hata: " + error.message);
+                console.error(error);
             } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
+                regBtn.innerText = "Hesap Oluştur";
+                regBtn.disabled = false;
             }
         });
+
+        // 3. GİRİŞ YAPMA İŞLEMİ
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            loginBtn.innerText = "Kontrol Ediliyor...";
+            loginBtn.disabled = true;
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPass').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Başarılıysa yönlendir
+                window.location.href = "kredilerim.html";
+
+            } catch (error) {
+                alert("Giriş Başarısız: " + "E-posta veya şifre hatalı.");
+                console.error(error);
+            } finally {
+                loginBtn.innerText = "Giriş Yap";
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Sayfa açıldığında kullanıcı zaten giriş yapmış mı kontrol et?
+        // Yapmışsa direkt kredilerim sayfasına atabiliriz (Opsiyonel)
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // Kullanıcı zaten girişli, tekrar giriş sayfasına gelmesine gerek yok
+                // window.location.href = "kredilerim.html"; 
+                // (Bunu yorum satırı yaptım, test ederken zorluk çıkarmasın diye)
+            }
+        }
+        checkSession();
+
     </script>
 </body>
 </html>

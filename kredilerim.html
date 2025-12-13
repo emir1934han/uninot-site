@@ -6,9 +6,7 @@
     <title>Kredilerim | UniNot</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="Anasayfa.css">
-    
     <link rel="stylesheet" href="Kredilerim.css">
 </head>
 <body>
@@ -21,7 +19,8 @@
             <ul class="nav-links">
                 <li><a href="index.html">Anasayfa</a></li>
                 <li><a href="not-al.html">Not Satın Al</a></li>
-                <li><a href="notpaylas.html" class="active-link">Not paylaş</a></li> <li><a href="Kayit.html" class="btn-register">Kayıt Ol</a></li>
+                <li><a href="notpaylas.html">Not Paylaş</a></li> 
+                <li><a href="#" id="logoutBtn" style="color:red; font-weight:bold;">Çıkış Yap</a></li>
             </ul>
             <div class="hamburger">
                 <i class="fa-solid fa-bars"></i>
@@ -34,7 +33,7 @@
             
             <div class="dashboard-header">
                 <div class="welcome-text">
-                    <h1>Kredilerim</h1>
+                    <h1>Hoşgeldin, <span id="userNameDisplay">Öğrenci</span> 👋</h1>
                     <p>Hesap bakiyeni ve geçmiş işlemlerini buradan yönetebilirsin.</p>
                 </div>
                 
@@ -142,5 +141,30 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <script type="module">
+        import { supabase } from './supabase.js';
+
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                // Giriş yapmamışsa kayıt sayfasına yönlendir
+                window.location.href = "Kayit.html";
+            } else {
+                // İsim alanına kullanıcının e-postasını veya adını yaz
+                // Eğer profiles tablosundan isim çekmek istersen burayı geliştirebiliriz
+                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+            }
+        }
+        checkAuth();
+
+        // Çıkış Butonu
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = "index.html";
+        });
+    </script>
 </body>
 </html>
