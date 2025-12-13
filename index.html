@@ -7,6 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+    
+    <style>
+        .note-preview-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            text-align: left; /* Not detayları sola yaslı daha iyi durur */
+            border: 1px solid #f1f5f9;
+        }
+        .note-preview-card:hover { transform: translateY(-5px); }
+        .note-meta {
+            display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.9rem; color: #64748b;
+        }
+        .note-price { font-weight: 700; color: #4f46e5; font-size: 1.1rem; }
+    </style>
 </head>
 <body>
 
@@ -19,7 +36,7 @@
                 <li><a href="notpaylas.html">Not Paylaş</a></li>
                 <li><a href="not-al.html">Not Satın Al</a></li>
                 <li><a href="kredilerim.html">Kredilerim</a></li>
-                <li><a href="Kayit.html" class="btn-register">Kayıt Ol</a></li>
+                <li><a href="Kayit.html" class="btn-register" id="navAuthBtn">Kayıt Ol</a></li>
             </ul>
             <div class="hamburger">
                 <i class="fa-solid fa-bars"></i>
@@ -43,16 +60,29 @@
     <section class="stats">
         <div class="container stats-grid">
             <div class="stat-item">
-                <h3>10B+</h3>
-                <p>Paylaşılan Not</p>
+                <h3 id="statNotes">...</h3> <p>Paylaşılan Not</p>
             </div>
             <div class="stat-item">
-                <h3>50+</h3>
-                <p>Üniversite</p>
+                <h3 id="statUnis">...</h3> <p>Üniversite</p>
             </div>
             <div class="stat-item">
-                <h3>₺150B+</h3>
-                <p>Öğrenci Kazancı</p>
+                <h3 id="statEarnings">...</h3> <p>Öğrenci Kazancı</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" style="background-color: #f8fafc;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Vitrine Yeni Düşenler 🔥</h2>
+                <p>En son paylaşılan ders notlarını keşfet.</p>
+            </div>
+            <div class="features-grid" id="showcaseGrid">
+                <p style="text-align:center; grid-column:1/-1;">Notlar yükleniyor...</p>
+            </div>
+            
+            <div style="text-align:center; margin-top:40px;">
+                <a href="not-al.html" class="btn btn-secondary" style="background:transparent; color:#4f46e5; border:1px solid #4f46e5;">Tümünü Gör</a>
             </div>
         </div>
     </section>
@@ -103,9 +133,9 @@
             <div class="footer-menu">
                 <h3>Platform</h3>
                 <ul>
-                    <li><a href="#">Nasıl Çalışır?</a></li>
-                    <li><a href="#">Not Ara</a></li>
-                    <li><a href="#">Fiyatlandırma</a></li>
+                    <li><a href="not-al.html">Not Ara</a></li>
+                    <li><a href="notpaylas.html">Not Paylaş</a></li>
+                    <li><a href="Kayit.html">Kayıt Ol</a></li>
                 </ul>
             </div>
             <div class="footer-menu">
@@ -127,17 +157,107 @@
     <script type="module">
         import { supabase } from './supabase.js';
         
-        // Navbar butonunu bul
-        const authBtn = document.querySelector('.btn-register');
+        const authBtn = document.getElementById('navAuthBtn');
+        const statNotes = document.getElementById('statNotes');
+        const statUnis = document.getElementById('statUnis');
+        const statEarnings = document.getElementById('statEarnings');
+        const showcaseGrid = document.getElementById('showcaseGrid');
         
+        // 1. GİRİŞ KONTROLÜ (Navbar)
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user && authBtn) {
                 authBtn.innerText = "Hesabım";
                 authBtn.href = "kredilerim.html";
+                authBtn.style.backgroundColor = "#4f46e5"; // Giriş yapınca renk değişsin
+                authBtn.style.color = "#fff";
             }
         }
         checkUser();
+
+        // 2. CANLI İSTATİSTİKLER
+        async function loadStats() {
+            try {
+                // Not Sayısı
+                const { count: notesCount } = await supabase
+                    .from('notes')
+                    .select('*', { count: 'exact', head: true });
+                
+                statNotes.innerText = (notesCount || 0) + "+";
+
+                // Üniversite Sayısı (Benzersizleri saymak için)
+                const { data: uniData } = await supabase.from('notes').select('university');
+                const uniqueUnis = new Set(uniData.map(n => n.university).filter(u => u)); // Boş olmayanları say
+                statUnis.innerText = uniqueUnis.size + "+";
+
+                // Kazanç Hesaplama (Satış Sayısı * Fiyat)
+                // Basitlik olsun diye şimdilik toplam indirme sayısını baz alalım veya sales_count toplayalım
+                const { data: salesData } = await supabase.from('notes').select('sales_count, price');
+                
+                let totalMoney = 0;
+                if(salesData) {
+                    // Toplam Kazanç = (Fiyat * Satış Adedi) toplamı
+                    totalMoney = salesData.reduce((acc, curr) => acc + (curr.price * (curr.sales_count || 0)), 0);
+                }
+                
+                // Sayıyı formatla (örn: 1.200 ₺)
+                statEarnings.innerText = "₺" + totalMoney.toLocaleString('tr-TR');
+
+            } catch (err) {
+                console.error("İstatistik hatası:", err);
+            }
+        }
+        loadStats();
+
+        // 3. VİTRİN (YENİ EKLENEN 3 NOT)
+        async function loadShowcase() {
+            // Notları çek, yazarları da al (! işaretiyle ilişkiyi belirttik)
+            const { data: notes, error } = await supabase
+                .from('notes')
+                .select('*, profiles!notes_author_id_fkey(full_name)')
+                .order('created_at', { ascending: false })
+                .limit(3);
+
+            if (error) {
+                console.error(error);
+                showcaseGrid.innerHTML = "";
+                return;
+            }
+
+            if (!notes || notes.length === 0) {
+                showcaseGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Henüz not yüklenmemiş.</p>";
+                return;
+            }
+
+            // HTML Oluştur (Senin Feature Card tasarımına benzer ama not için özelleştirilmiş)
+            showcaseGrid.innerHTML = "";
+            
+            notes.forEach(note => {
+                let authorName = "Anonim";
+                if(note.profiles && note.profiles.full_name) authorName = note.profiles.full_name;
+
+                const cardHTML = `
+                <div class="note-preview-card">
+                    <div class="icon-box color-1" style="width:50px; height:50px; font-size:1.2rem; margin-bottom:15px;">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3 style="font-size:1.2rem; margin-bottom:5px;">${note.lesson_name}</h3>
+                    <p style="font-size:0.9rem; color:#64748b; margin-bottom:15px;">${note.university || 'Genel'}</p>
+                    
+                    <div class="note-meta">
+                        <span><i class="fa-solid fa-user"></i> ${authorName}</span>
+                        <span class="note-price">${note.price == 0 ? 'Ücretsiz' : note.price + ' ₺'}</span>
+                    </div>
+                    <a href="not-al.html" style="display:block; margin-top:15px; text-decoration:none; color:#4f46e5; font-weight:600; font-size:0.9rem;">
+                        İncele <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                `;
+                showcaseGrid.innerHTML += cardHTML;
+            });
+        }
+        loadShowcase();
+
     </script>
 </body>
 </html>
