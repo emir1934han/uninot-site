@@ -7,23 +7,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+    
+    <style>
+        /* Sidebar için ek stil */
+        .filter-group input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .author-badge {
+            font-size: 0.8rem; color: #666; display: flex; align-items: center; gap: 5px; margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="container nav-container">
-            <div class="logo">
-                <i class="fa-solid fa-graduation-cap"></i> UniNot
-            </div>
+            <div class="logo"><i class="fa-solid fa-graduation-cap"></i> UniNot</div>
             <ul class="nav-links">
                 <li><a href="index.html">Anasayfa</a></li>
                 <li><a href="notpaylas.html">Not Paylaş</a></li> 
                 <li><a href="kredilerim.html">Kredilerim</a></li>
                 <li><a href="Kayit.html" class="btn-register" id="navAuthBtn">Kayıt Ol</a></li>
             </ul>
-            <div class="hamburger">
-                <i class="fa-solid fa-bars"></i>
-            </div>
         </div>
     </nav>
 
@@ -33,8 +42,8 @@
             <p>Gerçek öğrenciler tarafından yüklenen notları keşfet.</p>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Ders adı, üniversite veya konu ara...">
-                <button onclick="searchNotes()">Ara</button>
+                <input type="text" id="searchInput" placeholder="Ders adı ara..." onkeyup="applyFilters()">
+                <button onclick="applyFilters()">Ara</button>
             </div>
         </div>
     </header>
@@ -44,27 +53,34 @@
             
             <aside class="sidebar">
                 <div class="filter-group">
-                    <h3>Kategoriler</h3>
+                    <h3>Üniversite</h3>
+                    <input type="text" id="uniFilter" placeholder="Örn: ODTÜ" oninput="applyFilters()">
+                </div>
+
+                <div class="filter-group">
+                    <h3>Bölümler</h3>
                     <ul>
-                        <li><input type="checkbox" id="cat1"> <label for="cat1">Bilgisayar Müh.</label></li>
-                        <li><input type="checkbox" id="cat2"> <label for="cat2">Hukuk</label></li>
-                        <li><input type="checkbox" id="cat3"> <label for="cat3">Tıp</label></li>
-                        <li><input type="checkbox" id="cat4"> <label for="cat4">İşletme</label></li>
+                        <li><input type="checkbox" class="cat-filter" value="Bilgisayar Mühendisliği" onchange="applyFilters()"> <label>Bilgisayar Müh.</label></li>
+                        <li><input type="checkbox" class="cat-filter" value="Hukuk" onchange="applyFilters()"> <label>Hukuk</label></li>
+                        <li><input type="checkbox" class="cat-filter" value="Tıp" onchange="applyFilters()"> <label>Tıp</label></li>
+                        <li><input type="checkbox" class="cat-filter" value="İşletme" onchange="applyFilters()"> <label>İşletme</label></li>
+                        <li><input type="checkbox" class="cat-filter" value="Mimarlık" onchange="applyFilters()"> <label>Mimarlık</label></li>
                     </ul>
                 </div>
+
                 <div class="filter-group">
                     <h3>Sıralama</h3>
                     <ul>
-                        <li><input type="radio" name="sort" checked> <label>En Yeniler</label></li>
-                        <li><input type="radio" name="sort"> <label>En Çok İndirilenler</label></li>
+                        <li><input type="radio" name="sort" value="newest" checked onchange="applyFilters()"> <label>En Yeniler</label></li>
+                        <li><input type="radio" name="sort" value="popular" onchange="applyFilters()"> <label>En Çok İndirilenler</label></li>
+                        <li><input type="radio" name="sort" value="cheap" onchange="applyFilters()"> <label>Fiyata Göre (Artan)</label></li>
                     </ul>
                 </div>
             </aside>
 
             <main class="notes-grid" id="notesContainer">
-                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
-                    <p>Notlar yükleniyor...</p>
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Notlar yükleniyor...
                 </div>
             </main>
         </div>
@@ -72,14 +88,9 @@
 
     <footer>
         <div class="container footer-content">
-            <div class="footer-brand">
-                <h2>UniNot</h2>
-                <p>Öğrencilerin dijital kütüphanesi.</p>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2025 UniNot.</p>
-            </div>
+            <div class="footer-brand"><h2>UniNot</h2><p>Öğrencilerin dijital kütüphanesi.</p></div>
         </div>
+        <div class="copyright"><p>&copy; 2025 UniNot.</p></div>
     </footer>
 
     <script src="script.js"></script>
@@ -89,93 +100,124 @@
 
         const notesContainer = document.getElementById('notesContainer');
         const navAuthBtn = document.getElementById('navAuthBtn');
+        
         let currentUser = null;
+        let myPurchasedNoteIds = []; // Satın aldığım notların ID listesi
 
-        // 1. Kullanıcı Giriş Kontrolü
-        async function checkUser() {
+        // 1. Kullanıcıyı ve Satın Aldıklarını Çek
+        async function init() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 currentUser = user;
                 navAuthBtn.innerText = "Hesabım";
                 navAuthBtn.href = "kredilerim.html";
+
+                // Kullanıcının daha önce satın aldığı notların ID'lerini çek
+                const { data: transactions } = await supabase
+                    .from('transactions')
+                    .select('note_id')
+                    .eq('buyer_id', user.id);
+                
+                if (transactions) {
+                    myPurchasedNoteIds = transactions.map(t => t.note_id);
+                }
             }
+            applyFilters(); // Notları getir
         }
-        checkUser();
+        init();
 
-        // 2. Notları Veritabanından Çek
-        async function fetchNotes(searchTerm = "") {
+        // 2. Filtreleme ve Notları Getirme
+        window.applyFilters = async function() {
+            notesContainer.innerHTML = '<p style="text-align:center;">Yükleniyor...</p>';
+
+            const searchVal = document.getElementById('searchInput').value;
+            const uniVal = document.getElementById('uniFilter').value;
             
-            // Veritabanından notları çek (Tarihe göre yeniden eskiye)
-            let query = supabase
-                .from('notes')
-                .select('*')
-                .order('created_at', { ascending: false });
+            // Seçili kategorileri bul
+            const checkedCats = Array.from(document.querySelectorAll('.cat-filter:checked')).map(cb => cb.value);
+            
+            // Sıralama seçimi
+            const sortVal = document.querySelector('input[name="sort"]:checked').value;
 
-            // Arama varsa filtrele
-            if (searchTerm) {
-                query = query.ilike('lesson_name', `%${searchTerm}%`);
-            }
+            // Sorguyu Hazırla
+            let query = supabase.from('notes').select('*');
+
+            if (searchVal) query = query.ilike('lesson_name', `%${searchVal}%`);
+            if (uniVal) query = query.ilike('university', `%${uniVal}%`);
+            if (checkedCats.length > 0) query = query.in('category', checkedCats);
+
+            // Sıralama Mantığı
+            if (sortVal === 'newest') query = query.order('created_at', { ascending: false });
+            else if (sortVal === 'popular') query = query.order('sales_count', { ascending: false });
+            else if (sortVal === 'cheap') query = query.order('price', { ascending: true });
 
             const { data: notes, error } = await query;
 
             if (error) {
-                console.error("Notlar çekilirken hata:", error);
-                notesContainer.innerHTML = `<p style="color:red; text-align:center;">Hata oluştu: ${error.message}</p>`;
+                console.error(error);
+                notesContainer.innerHTML = "Hata oluştu.";
                 return;
             }
-
             renderNotes(notes);
         }
 
-        // 3. Notları Ekrana Bas (Kart Oluşturma)
+        // 3. Ekrana Basma
         function renderNotes(notes) {
-            notesContainer.innerHTML = ""; // Yükleniyor yazısını sil
+            notesContainer.innerHTML = "";
 
             if (!notes || notes.length === 0) {
-                notesContainer.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 10px;">
-                        <i class="fa-regular fa-folder-open" style="font-size: 3rem; color: #cbd5e1; margin-bottom:10px;"></i>
-                        <h3>Henüz not yüklenmemiş.</h3>
-                        <p>İlk notu sen paylaşmak ister misin?</p>
-                        <a href="notpaylas.html" class="btn-buy" style="display:inline-block; margin-top:10px; width:auto;">Not Paylaş</a>
-                    </div>`;
+                notesContainer.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Aradığınız kriterde not bulunamadı.</p>';
                 return;
             }
 
             notes.forEach(note => {
-                // Rastgele renk sınıfı seç
                 const colors = ['', 'color-blue', 'color-green', 'color-purple'];
                 const randomColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // Notun sahibi bakan kişi mi?
+                // KONTROLLER
                 const isOwner = currentUser && (note.author_id === currentUser.id);
+                const isPurchased = myPurchasedNoteIds.includes(note.id); // Daha önce almış mı?
                 
-                // Fiyat etiketi
-                const priceText = note.price == 0 ? 'Ücretsiz' : `${note.price} ₺`;
-                
-                // Buton Metni
-                let buttonText = "Satın Al ve İndir";
-                if (isOwner) buttonText = "Kendi Notun (İndir)";
-                else if (note.price == 0) buttonText = "Ücretsiz İndir";
+                // BUTON DURUMU BELİRLEME
+                let btnText = `Satın Al (${note.price}₺)`;
+                let btnClass = "btn-buy";
+                let btnStyle = "";
+
+                if (isOwner) {
+                    btnText = "Senin Notun (İndir)";
+                    btnStyle = "background:#64748b; color:white;";
+                } else if (isPurchased) {
+                    btnText = "Satın Alındı (İndir)";
+                    btnStyle = "background:#16a34a; color:white;"; // Yeşil
+                } else if (note.price == 0) {
+                    btnText = "Ücretsiz İndir";
+                }
+
+                // Yazar bilgisi (Emailin başı)
+                const authorName = note.author_email ? note.author_email.split('@')[0] : 'Anonim';
 
                 const cardHTML = `
                 <div class="note-card">
                     <div class="card-image ${randomColor}">
-                        <span class="badge-price">${priceText}</span>
+                        <span class="badge-price">${note.price == 0 ? 'Ücretsiz' : note.price + '₺'}</span>
                         <i class="fa-regular fa-file-pdf"></i>
                     </div>
                     <div class="card-body">
                         <div class="university">${note.university || 'Genel'}</div>
                         <h3 title="${note.lesson_name}">${note.lesson_name}</h3>
-                        <div class="author">
-                            <i class="fa-solid fa-user-pen"></i> ${note.category || 'Diğer'}
-                        </div>
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; min-height: 40px;">
-                            ${note.description ? note.description.substring(0, 60) + '...' : 'Açıklama yok.'}
-                        </p>
                         
-                        <button onclick="window.triggerPurchase(${note.id})" class="btn-buy" style="width:100%; border:none; cursor:pointer;">
-                            ${buttonText}
+                        <div class="author-badge">
+                            <i class="fa-solid fa-user"></i> ${authorName}
+                        </div>
+                        <div class="rating">
+                            <i class="fa-solid fa-download"></i> ${note.sales_count || 0} İndirme
+                        </div>
+                        
+                        <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">${note.description ? note.description.substring(0,50)+'...' : ''}</p>
+
+                        <button onclick="window.handleNoteAction(${note.id}, '${note.file_url}', ${isOwner}, ${isPurchased})" 
+                            class="${btnClass}" style="width:100%; cursor:pointer; border:none; ${btnStyle}">
+                            ${btnText}
                         </button>
                     </div>
                 </div>
@@ -184,33 +226,30 @@
             });
         }
 
-        // Sayfa açılınca notları getir
-        fetchNotes();
-
-        // Arama Fonksiyonu
-        window.searchNotes = function() {
-            const val = document.getElementById('searchInput').value;
-            notesContainer.innerHTML = '<p style="text-align:center;">Aranıyor...</p>';
-            fetchNotes(val);
-        }
-
-        // --- SATIN ALMA / İNDİRME FONKSİYONU ---
-        window.triggerPurchase = async function(noteId) {
-            // 1. Giriş kontrolü
+        // 4. BUTON AKSİYONU (Satın Al veya Direkt İndir)
+        window.handleNoteAction = async function(noteId, fileUrl, isOwner, isPurchased) {
             if (!currentUser) {
-                if(confirm("Bu notu indirmek için giriş yapmalısınız. Giriş sayfasına gidilsin mi?")) {
-                    window.location.href = "Kayit.html";
-                }
+                alert("İşlem yapmak için giriş yapmalısınız.");
+                window.location.href = "Kayit.html";
                 return;
             }
 
+            // Eğer not zaten benimse veya satın aldıysam, direkt aç (Para çekme!)
+            if (isOwner || isPurchased) {
+                window.open(fileUrl, '_blank');
+                return;
+            }
+
+            // Değilse, Satın Alma Fonksiyonunu Çağır
+            if(!confirm("Bu notu satın almak istediğinize emin misiniz?")) return;
+
+            // Butonu bulup 'İşleniyor' yapalım (Basitçe)
             const btn = event.target;
             const originalText = btn.innerText;
             btn.innerText = "İşleniyor...";
             btn.disabled = true;
 
             try {
-                // 2. Supabase Veritabanı Fonksiyonunu (RPC) Çağır
                 const { data, error } = await supabase.rpc('buy_note', {
                     note_row_id: noteId,
                     client_id: currentUser.id
@@ -218,20 +257,19 @@
 
                 if (error) throw error;
 
-                // 3. Sonuca Bak
                 if (data.success) {
-                    // Başarılı!
-                    alert(data.message); 
-                    // Linki yeni sekmede aç
+                    alert(data.message);
+                    // Başarılı olunca listeyi yenile (Buton yeşile dönsün diye)
+                    // Ve anlık olarak satın alınanlar listesine ekle
+                    myPurchasedNoteIds.push(noteId);
+                    
                     window.open(data.download_url, '_blank');
+                    applyFilters(); // Arayüzü güncelle
                 } else {
-                    // Başarısız (Yetersiz bakiye vb.)
-                    alert("Uyarı: " + data.message);
+                    alert("Hata: " + data.message);
                 }
-
             } catch (err) {
-                console.error("Satın alma hatası:", err);
-                alert("Bir hata oluştu: " + err.message);
+                alert("İşlem hatası: " + err.message);
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;

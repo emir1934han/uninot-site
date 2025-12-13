@@ -67,7 +67,29 @@
                         <tbody id="transactionsBody">
                             <tr>
                                 <td colspan="4" style="text-align:center; padding:20px; color:#999;">
-                                    İşlem geçmişi yükleniyor...
+                                    Veriler yükleniyor...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="transactions-panel" style="margin-top: 30px;">
+                <h3>📚 Kütüphanem (Satın Aldıklarım)</h3>
+                <div class="table-responsive">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Ders Adı</th>
+                                <th>Satın Alma Tarihi</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="libraryBody">
+                            <tr>
+                                <td colspan="3" style="text-align:center; padding:20px; color:#999;">
+                                    Kütüphane yükleniyor...
                                 </td>
                             </tr>
                         </tbody>
@@ -99,51 +121,104 @@
         const userUniDisplay = document.getElementById('userUniDisplay');
         const userBalance = document.getElementById('userBalance');
         const transactionsBody = document.getElementById('transactionsBody');
+        const libraryBody = document.getElementById('libraryBody');
 
         async function loadUserData() {
             // 1. Giriş Yapan Kullanıcıyı Bul
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-                // Giriş yapmamışsa at
                 window.location.href = "Kayit.html";
                 return;
             }
 
-            // 2. Profil Tablosundan Detayları Çek (İsim, Okul, Bakiye)
+            // 2. Profil Detaylarını Çek (İsim, Okul, Bakiye)
             const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('full_name, university, department, credits')
+                .select('*')
                 .eq('id', user.id)
                 .single();
 
-            if (error) {
-                console.error("Profil hatası:", error);
-                userNameDisplay.innerText = "Öğrenci";
-                return;
+            if (profile) {
+                userNameDisplay.innerText = profile.full_name || user.email.split('@')[0];
+                userUniDisplay.innerText = (profile.university && profile.department) 
+                    ? `${profile.university} - ${profile.department}` 
+                    : "Profil bilgileri eksik.";
+                
+                const balance = profile.credits ? profile.credits : 0;
+                userBalance.innerText = `₺ ${parseFloat(balance).toFixed(2)}`;
             }
 
-            // 3. Verileri Ekrana Yaz
-            userNameDisplay.innerText = profile.full_name || user.email.split('@')[0];
-            
-            if(profile.university && profile.department) {
-                userUniDisplay.innerText = `${profile.university} - ${profile.department}`;
+            // 3. İŞLEM GEÇMİŞİNİ ÇEK (Transactions Tablosu)
+            const { data: transactions } = await supabase
+                .from('transactions')
+                .select('*')
+                .eq('buyer_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (transactions && transactions.length > 0) {
+                transactionsBody.innerHTML = "";
+                transactions.forEach(tx => {
+                    const title = tx.note_name || 'Bakiye Yükleme';
+                    // Note ID null ise para yüklemedir (+), doluysa harcamadır (-)
+                    const isDeposit = tx.note_id === null; 
+                    
+                    const row = `
+                        <tr>
+                            <td>
+                                <div class="trans-info">
+                                    <div class="icon-circle ${isDeposit ? 'income' : 'expense'}">
+                                        <i class="fa-solid ${isDeposit ? 'fa-wallet' : 'fa-file-pdf'}"></i>
+                                    </div>
+                                    <span>${title}</span>
+                                </div>
+                            </td>
+                            <td>${new Date(tx.created_at).toLocaleDateString('tr-TR')}</td>
+                            <td><span class="badge-success">Tamamlandı</span></td>
+                            <td class="${isDeposit ? 'amount-plus' : 'amount-minus'}">
+                                ${isDeposit ? '+' : '-'} ₺${tx.amount}
+                            </td>
+                        </tr>
+                    `;
+                    transactionsBody.innerHTML += row;
+                });
             } else {
-                userUniDisplay.innerText = "Profil bilgileri eksik.";
+                transactionsBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Henüz bir işlem yok.</td></tr>';
             }
 
-            // Bakiyeyi Yaz (Varsa yaz, yoksa 0.00 TL)
-            const balance = profile.credits ? profile.credits : 0;
-            userBalance.innerText = `₺ ${parseFloat(balance).toFixed(2)}`;
+            // 4. KÜTÜPHANEMİ ÇEK (Satın alınan notlar ve indirme linkleri)
+            // Transactions tablosunu Notes tablosuyla birleştirip URL'i alıyoruz
+            const { data: myLibrary } = await supabase
+                .from('transactions')
+                .select('created_at, note_name, notes(file_url)')
+                .eq('buyer_id', user.id)
+                .not('note_id', 'is', null) // Sadece not satın alımlarını getir
+                .order('created_at', { ascending: false });
 
-            // 4. (Şimdilik) İşlem Geçmişi Boş Uyarısı
-            transactionsBody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align:center; padding:20px; color:#666;">
-                        Henüz bir hesap hareketiniz bulunmuyor.
-                    </td>
-                </tr>
-            `;
+            if (myLibrary && myLibrary.length > 0) {
+                libraryBody.innerHTML = "";
+                myLibrary.forEach(item => {
+                    // Not silinmişse link çalışmaz, kontrol edelim
+                    const fileUrl = item.notes ? item.notes.file_url : '#';
+                    const linkStyle = item.notes ? "color:#4f46e5; cursor:pointer;" : "color:gray; cursor:not-allowed;";
+                    const linkText = item.notes ? '<i class="fa-solid fa-download"></i> İndir' : 'Not Silinmiş';
+
+                    const row = `
+                        <tr>
+                            <td style="font-weight:500;">${item.note_name}</td>
+                            <td>${new Date(item.created_at).toLocaleDateString('tr-TR')}</td>
+                            <td>
+                                <a href="${fileUrl}" target="_blank" style="${linkStyle} font-weight:bold; text-decoration:none;">
+                                    ${linkText}
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    libraryBody.innerHTML += row;
+                });
+            } else {
+                libraryBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">Henüz satın alınan not yok.</td></tr>';
+            }
         }
 
         loadUserData();
