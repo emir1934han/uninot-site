@@ -3,72 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniNot | Üniversite Not Paylaşım Platformu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>UniNot | Öğrenci Not Paylaşım Platformu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
-    
-    <style>
-        /* İstatistik Kutuları Animasyonu */
-        .stat-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        /* Vitrin Kartları */
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        /* Bölüm Başlıkları */
-        .section-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto 50px;
-        }
-        .section-header h2 {
-            font-size: 2.2rem;
-            color: #1e293b;
-            margin-bottom: 15px;
-        }
-        .section-header p {
-            color: #64748b;
-            font-size: 1.1rem;
-        }
-
-        /* Neden Biz Bölümü */
-        .features-section {
-            padding: 80px 0;
-            background: #fff;
-        }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
-        .feature-box {
-            text-align: center;
-            padding: 30px;
-            border-radius: 20px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-        }
-        .feature-icon {
-            width: 70px; height: 70px;
-            background: #e0e7ff;
-            color: #4f46e5;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 20px;
-        }
-    </style>
 </head>
 <body>
 
@@ -78,10 +16,10 @@
                 <i class="fa-solid fa-graduation-cap"></i> UniNot
             </div>
             <ul class="nav-links">
-                <li><a href="index.html" class="active">Anasayfa</a></li>
-                <li><a href="not-al.html">Not Satın Al</a></li>
                 <li><a href="notpaylas.html">Not Paylaş</a></li>
-                <li><a href="Kayit.html" class="btn-register" id="navAuthBtn">Kayıt Ol</a></li>
+                <li><a href="not-al.html">Not Satın Al</a></li>
+                <li><a href="kredilerim.html">Kredilerim</a></li>
+                <li><a href="Kayit.html" class="btn-register">Kayıt Ol</a></li>
             </ul>
             <div class="hamburger">
                 <i class="fa-solid fa-bars"></i>
@@ -89,103 +27,64 @@
         </div>
     </nav>
 
-    <header class="hero-section">
+    <header class="hero">
+        <div class="overlay"></div>
         <div class="container hero-content">
-            <div class="hero-text">
-                <span class="hero-tag">🚀 Öğrencilerin Yeni Gelir Kapısı</span>
-                <h1>Ders Notlarını <br> Kazanca Dönüştür</h1>
-                <p>Üniversite notlarını paylaşarak pasif gelir elde et veya eksik derslerini tamamlamak için en iyi kaynaklara ulaş.</p>
-                <div class="hero-buttons">
-                    <a href="not-al.html" class="btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Not Ara</a>
-                    <a href="notpaylas.html" class="btn-secondary"><i class="fa-solid fa-upload"></i> Not Yükle</a>
-                </div>
-                
-                <div class="trust-badges" style="margin-top: 30px; display:flex; gap:20px; align-items:center; color:#64748b; font-size:0.9rem;">
-                    <span><i class="fa-solid fa-check-circle" style="color:#16a34a;"></i> Onaylı Üyelik</span>
-                    <span><i class="fa-solid fa-check-circle" style="color:#16a34a;"></i> Güvenli Ödeme</span>
-                </div>
-            </div>
-            
-            <div class="hero-image">
-                <i class="fa-solid fa-book-open-reader" style="font-size: 18rem; color: rgba(255,255,255,0.15); filter: drop-shadow(0 0 20px rgba(79,70,229,0.3));"></i>
+            <span class="badge">🚀 Öğrenciler için Gelir Kapısı</span>
+            <h1>Ders Notlarını <br> <span class="highlight">Kazanca Dönüştür</span></h1>
+            <p>Üniversite notların tozlu raflarda kalmasın. İhtiyacı olanlara sat, kredi kazan veya eksik ders notlarını anında tamamla.</p>
+            <div class="hero-buttons">
+                <a href="not-al.html" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Not Ara</a>
+                <a href="notpaylas.html" class="btn btn-secondary"><i class="fa-solid fa-cloud-arrow-up"></i> Not Yükle</a>
             </div>
         </div>
     </header>
 
-    <section class="stats-section" style="padding: 60px 0; background: #f8fafc;">
-        <div class="container">
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; text-align: center;">
-                
-                <div class="stat-card" style="background:white; padding:40px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-                    <div class="stat-icon" style="font-size:2.5rem; color:#4f46e5; margin-bottom:15px;"><i class="fa-regular fa-file-pdf"></i></div>
-                    <div class="stat-number" id="countNotes" style="font-size:3rem; font-weight:700; color:#1e293b;">...</div>
-                    <div class="stat-label" style="color:#64748b; font-weight:500;">Paylaşılan Not</div>
-                </div>
-
-                <div class="stat-card" style="background:white; padding:40px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-                    <div class="stat-icon" style="font-size:2.5rem; color:#16a34a; margin-bottom:15px;"><i class="fa-solid fa-users"></i></div>
-                    <div class="stat-number" id="countUsers" style="font-size:3rem; font-weight:700; color:#1e293b;">...</div>
-                    <div class="stat-label" style="color:#64748b; font-weight:500;">Mutlu Öğrenci</div>
-                </div>
-
-                <div class="stat-card" style="background:white; padding:40px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-                    <div class="stat-icon" style="font-size:2.5rem; color:#f59e0b; margin-bottom:15px;"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-                    <div class="stat-number" id="countDownloads" style="font-size:3rem; font-weight:700; color:#1e293b;">...</div>
-                    <div class="stat-label" style="color:#64748b; font-weight:500;">Toplam İndirme</div>
-                </div>
-
+    <section class="stats">
+        <div class="container stats-grid">
+            <div class="stat-item">
+                <h3>10B+</h3>
+                <p>Paylaşılan Not</p>
+            </div>
+            <div class="stat-item">
+                <h3>50+</h3>
+                <p>Üniversite</p>
+            </div>
+            <div class="stat-item">
+                <h3>₺150B+</h3>
+                <p>Öğrenci Kazancı</p>
             </div>
         </div>
     </section>
 
-    <section class="features-section">
+    <section class="features" id="features">
         <div class="container">
-            <div class="section-header">
-                <h2>Neden UniNot Kullanmalısın?</h2>
-                <p>Sadece not paylaşmıyoruz, öğrencilerin hayatını kolaylaştırıyoruz.</p>
+            <div class="section-title">
+                <h2>Neden UniNot?</h2>
+                <p>Daha verimli çalışman ve kazanman için tasarlandı.</p>
             </div>
-            
             <div class="features-grid">
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fa-solid fa-wallet"></i></div>
-                    <h3>Ek Gelir Elde Et</h3>
-                    <p style="color:#64748b;">Kendi tuttuğun notları satarak öğrencilik bütçene katkıda bulun.</p>
+                <div class="feature-card">
+                    <div class="icon-box color-1">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3>Kolayca Yükle</h3>
+                    <p>Ders notlarını PDF formatında saniyeler içinde yükle, fiyatını sen belirle.</p>
                 </div>
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fa-solid fa-award"></i></div>
-                    <h3>Kaliteli İçerik</h3>
-                    <p style="color:#64748b;">Onaylanmış ve puanlanmış notlarla sınavlara en iyi şekilde hazırlan.</p>
+                <div class="feature-card">
+                    <div class="icon-box color-2">
+                        <i class="fa-solid fa-download"></i>
+                    </div>
+                    <h3>Anında İndir</h3>
+                    <p>Kaçırdığın veya eksik olduğun derslerin özetlerine uygun fiyatlarla ulaş.</p>
                 </div>
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fa-solid fa-infinity"></i></div>
-                    <h3>Sınırsız Erişim</h3>
-                    <p style="color:#64748b;">Satın aldığın notlara dilediğin zaman, dilediğin cihazdan eriş.</p>
+                <div class="feature-card">
+                    <div class="icon-box color-3">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <h3>Gelir Elde Et</h3>
+                    <p>Notların her indirildiğinde cüzdanına kredi yansısın, nakite çevir.</p>
                 </div>
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h3>Güvenli Sistem</h3>
-                    <p style="color:#64748b;">Supabase altyapısı ile verilerin ve ödemelerin güvende.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="showcase-section" style="padding: 80px 0; background:#f1f5f9;">
-        <div class="container">
-            <div class="section-header">
-                <h2>Vitrine Yeni Düşenler 🔥</h2>
-                <p>En son paylaşılan notları keşfet ve hemen çalışmaya başla.</p>
-            </div>
-
-            <div class="notes-grid" id="featuredNotes">
-                <div style="grid-column:1/-1; text-align:center;">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:#cbd5e1;"></i>
-                    <p style="color:#64748b; margin-top:10px;">Vitrin yükleniyor...</p>
-                </div>
-            </div>
-
-            <div style="text-align:center; margin-top: 50px;">
-                <a href="not-al.html" class="btn-primary" style="padding: 15px 40px;">Tüm Notları Gör</a>
             </div>
         </div>
     </section>
@@ -195,18 +94,18 @@
             <div class="footer-brand">
                 <h2>UniNot</h2>
                 <p>Öğrencilerin dijital kütüphanesi ve gelir kapısı.</p>
-                <div class="social-links" style="margin-top:20px;">
+                <div class="social-links">
                     <a href="#"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                 </div>
             </div>
             <div class="footer-menu">
-                <h3>Keşfet</h3>
+                <h3>Platform</h3>
                 <ul>
-                    <li><a href="index.html">Anasayfa</a></li>
-                    <li><a href="not-al.html">Not Satın Al</a></li>
-                    <li><a href="notpaylas.html">Not Paylaş</a></li>
+                    <li><a href="#">Nasıl Çalışır?</a></li>
+                    <li><a href="#">Not Ara</a></li>
+                    <li><a href="#">Fiyatlandırma</a></li>
                 </ul>
             </div>
             <div class="footer-menu">
@@ -223,113 +122,22 @@
         </div>
     </footer>
 
+    <script src="script.js"></script>
+
     <script type="module">
         import { supabase } from './supabase.js';
-
-        const navAuthBtn = document.getElementById('navAuthBtn');
-        const countNotes = document.getElementById('countNotes');
-        const countUsers = document.getElementById('countUsers');
-        const countDownloads = document.getElementById('countDownloads');
-        const featuredNotes = document.getElementById('featuredNotes');
-
-        // 1. KULLANICI GİRİŞ KONTROLÜ (Navbarı Düzenle)
+        
+        // Navbar butonunu bul
+        const authBtn = document.querySelector('.btn-register');
+        
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                navAuthBtn.innerHTML = '<i class="fa-solid fa-user"></i> Hesabım';
-                navAuthBtn.href = "kredilerim.html";
-                navAuthBtn.style.background = "#4f46e5";
-                navAuthBtn.style.color = "white";
+            if (user && authBtn) {
+                authBtn.innerText = "Hesabım";
+                authBtn.href = "kredilerim.html";
             }
         }
         checkUser();
-
-        // 2. CANLI İSTATİSTİKLERİ GETİR
-        async function loadStats() {
-            try {
-                // A) Not Sayısı
-                const { count: notesCount } = await supabase.from('notes').select('*', { count: 'exact', head: true });
-
-                // B) Öğrenci Sayısı
-                const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-
-                // C) Toplam İndirme (Sales Count)
-                const { data: downloadData } = await supabase.from('notes').select('sales_count');
-                let totalDownloads = 0;
-                if(downloadData) {
-                    totalDownloads = downloadData.reduce((sum, item) => sum + (item.sales_count || 0), 0);
-                }
-
-                // Ekrana Yaz
-                countNotes.innerText = notesCount || 0;
-                countUsers.innerText = usersCount || 0;
-                countDownloads.innerText = totalDownloads || 0;
-
-            } catch (err) {
-                console.error("İstatistik hatası:", err);
-            }
-        }
-        loadStats();
-
-        // 3. VİTRİNE SON 3 NOTU GETİR
-        async function loadFeaturedNotes() {
-            // İlişkiyi ! işaretiyle belirttik ki hata almayalım
-            const { data: notes, error } = await supabase
-                .from('notes')
-                .select('*, profiles!notes_author_id_fkey(full_name)')
-                .order('created_at', { ascending: false })
-                .limit(3); 
-
-            if (error) {
-                console.error(error);
-                featuredNotes.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Vitrin yüklenemedi.</p>";
-                return;
-            }
-
-            renderNotes(notes);
-        }
-
-        function renderNotes(notes) {
-            featuredNotes.innerHTML = "";
-            
-            if(!notes || notes.length === 0) {
-                featuredNotes.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Henüz not yüklenmemiş.</p>";
-                return;
-            }
-
-            notes.forEach(note => {
-                const colors = ['', 'color-blue', 'color-green', 'color-purple'];
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Yazar Adı Kontrolü
-                let authorName = "Anonim";
-                if(note.profiles && note.profiles.full_name) {
-                    authorName = note.profiles.full_name;
-                } else if (note.author_email) {
-                    authorName = note.author_email.split('@')[0];
-                }
-
-                const cardHTML = `
-                <div class="note-card">
-                    <div class="card-image ${randomColor}">
-                        <span class="badge-price">${note.price == 0 ? 'Ücretsiz' : note.price + '₺'}</span>
-                        <i class="fa-regular fa-file-pdf"></i>
-                    </div>
-                    <div class="card-body">
-                        <div class="university">${note.university || 'Genel'}</div>
-                        <h3 title="${note.lesson_name}">${note.lesson_name}</h3>
-                        <div class="author-badge" style="font-size:0.85rem; color:#64748b; margin-bottom:10px;">
-                             <i class="fa-solid fa-user-pen"></i> ${authorName}
-                        </div>
-                        <a href="not-al.html" class="btn-buy" style="text-align:center; display:block; text-decoration:none; margin-top:10px;">İncele</a>
-                    </div>
-                </div>
-                `;
-                featuredNotes.innerHTML += cardHTML;
-            });
-        }
-        loadFeaturedNotes();
-
     </script>
 </body>
 </html>
