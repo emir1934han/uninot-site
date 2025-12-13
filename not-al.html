@@ -288,7 +288,17 @@
             const { data: notes, error } = await query;
 
             if (error) {
-                console.error(error);
+                console.error("Supabase Hatası:", error);
+                notesContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #dc2626; background: #fef2f2; border-radius: 10px; border: 1px solid #fee2e2;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <h3>Veriler Çekilemedi!</h3>
+                        <p><b>Hata Mesajı:</b> ${error.message}</p>
+                        <p><b>Hata Kodu:</b> ${error.code || 'Bilinmiyor'}</p>
+                        <p style="font-size: 0.8rem; margin-top: 10px; color: #666;">
+                            <i>(İpucu: Eğer kod "PGRST200" ise ilişki hatasıdır. Eğer "42501" ise RLS/İzin hatasıdır.)</i>
+                        </p>
+                    </div>`;
                 return;
             }
             renderNotes(notes);
