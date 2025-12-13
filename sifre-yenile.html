@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeni Şifre Belirle | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Anasayfa.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo"><i class="fa-solid fa-graduation-cap"></i> UniNot</div>
+        </div>
+    </nav>
+
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Yeni Şifre Belirle 🔑</h2>
+                <p>Lütfen hesabın için yeni ve güçlü bir şifre gir.</p>
+                
+                <form id="updatePasswordForm">
+                    <div class="form-group">
+                        <label>Yeni Şifre</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="newPassword" placeholder="En az 6 karakter" required minlength="6">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="updateBtn">Şifreyi Güncelle</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { supabase } from './supabase.js';
+
+        const updatePasswordForm = document.getElementById('updatePasswordForm');
+        const updateBtn = document.getElementById('updateBtn');
+
+        // Sayfa açıldığında URL'de "access_token" var mı diye Supabase otomatik bakar.
+        // Eğer linkten gelmediyse kullanıcıyı ana sayfaya atalım.
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                // Kullanıcı şifre sıfırlama linkiyle gelmiş, sorun yok.
+            } else if (!session) {
+                // Oturum yoksa ve linkten gelmediyse anasayfaya at
+                // window.location.href = "index.html";
+            }
+        });
+
+        updatePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+
+            updateBtn.innerText = "Güncelleniyor...";
+            updateBtn.disabled = true;
+
+            try {
+                // Şifreyi güncelle
+                const { data, error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (error) throw error;
+
+                alert("Şifren başarıyla güncellendi! Giriş yapabilirsin.");
+                window.location.href = "Kayit.html"; // Giriş sayfasına yönlendir
+
+            } catch (error) {
+                alert("Hata: " + error.message);
+                console.error(error);
+            } finally {
+                updateBtn.innerText = "Şifreyi Güncelle";
+                updateBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

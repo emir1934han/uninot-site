@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="Anasayfa.css">
 
     <style>
-        /* Bu Sayfaya Özel Stil Eklemeleri */
         .auth-toggle {
             display: flex;
             background: #f1f5f9;
@@ -33,11 +32,30 @@
             color: #4f46e5;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .hidden {
-            display: none;
+        .hidden { display: none; }
+        .auth-card { max-width: 500px; }
+        
+        .forgot-link {
+            display: block;
+            text-align: right;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #4f46e5;
+            text-decoration: none;
+            cursor: pointer;
         }
-        .auth-card {
-            max-width: 500px; /* Genişliği biraz artırdık */
+        .forgot-link:hover { text-decoration: underline; }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -52,11 +70,7 @@
                 <li><a href="index.html">Anasayfa</a></li>
                 <li><a href="not-al.html">Not Satın Al</a></li>
                 <li><a href="notpaylas.html">Not Paylaş</a></li>
-                <li><a href="kredilerim.html">Kredilerim</a></li>
             </ul>
-            <div class="hamburger">
-                <i class="fa-solid fa-bars"></i>
-            </div>
         </div>
     </nav>
 
@@ -64,7 +78,7 @@
         <div class="auth-container">
             <div class="auth-card">
                 
-                <div class="auth-toggle">
+                <div class="auth-toggle" id="toggleButtons">
                     <button class="toggle-btn" id="showLoginBtn">Giriş Yap</button>
                     <button class="toggle-btn active" id="showRegisterBtn">Kayıt Ol</button>
                 </div>
@@ -72,49 +86,29 @@
                 <div id="registerContainer">
                     <h2>Aramıza Katıl 🚀</h2>
                     <p>Notlarını paylaşmak ve kazanmak için hemen üye ol.</p>
-                    
                     <form id="registerForm">
                         <div class="form-group">
                             <label>Ad Soyad</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-user"></i>
-                                <input type="text" id="regName" placeholder="Örn: Emirhan Yılmaz" required>
-                            </div>
+                            <div class="input-wrapper"><i class="fa-solid fa-user"></i><input type="text" id="regName" placeholder="Örn: Emirhan Yılmaz" required></div>
                         </div>
-
                         <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div class="form-group">
                                 <label>Üniversite</label>
-                                <div class="input-wrapper">
-                                    <i class="fa-solid fa-building-columns"></i>
-                                    <input type="text" id="regUni" placeholder="Örn: İstanbul Üni" required>
-                                </div>
+                                <div class="input-wrapper"><i class="fa-solid fa-building-columns"></i><input type="text" id="regUni" placeholder="İstanbul Üni" required></div>
                             </div>
                             <div class="form-group">
                                 <label>Bölüm</label>
-                                <div class="input-wrapper">
-                                    <i class="fa-solid fa-book-open"></i>
-                                    <input type="text" id="regDept" placeholder="Örn: Hukuk" required>
-                                </div>
+                                <div class="input-wrapper"><i class="fa-solid fa-book-open"></i><input type="text" id="regDept" placeholder="Hukuk" required></div>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label>E-posta Adresi</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="regEmail" placeholder="ogrenci@site.com" required>
-                            </div>
+                            <label>E-posta</label>
+                            <div class="input-wrapper"><i class="fa-solid fa-envelope"></i><input type="email" id="regEmail" placeholder="ogrenci@site.com" required></div>
                         </div>
-
                         <div class="form-group">
                             <label>Şifre</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="regPass" placeholder="En az 6 karakter" required minlength="6">
-                            </div>
+                            <div class="input-wrapper"><i class="fa-solid fa-lock"></i><input type="password" id="regPass" placeholder="En az 6 karakter" required minlength="6"></div>
                         </div>
-
                         <button type="submit" class="btn-submit" id="regBtn">Hesap Oluştur</button>
                     </form>
                 </div>
@@ -122,25 +116,33 @@
                 <div id="loginContainer" class="hidden">
                     <h2>Tekrar Hoşgeldin 👋</h2>
                     <p>Kaldığın yerden devam etmek için giriş yap.</p>
-                    
                     <form id="loginForm">
+                        <div class="form-group">
+                            <label>E-posta</label>
+                            <div class="input-wrapper"><i class="fa-solid fa-envelope"></i><input type="email" id="loginEmail" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <div class="input-wrapper"><i class="fa-solid fa-lock"></i><input type="password" id="loginPass" required></div>
+                            <a class="forgot-link" id="forgotPassLink">Şifremi Unuttum?</a>
+                        </div>
+                        <button type="submit" class="btn-submit" id="loginBtn">Giriş Yap</button>
+                    </form>
+                </div>
+
+                <div id="forgotContainer" class="hidden">
+                    <button class="back-btn" id="backToLoginBtn"><i class="fa-solid fa-arrow-left"></i> Giriş Yap'a Dön</button>
+                    <h2>Şifre Sıfırlama 🔒</h2>
+                    <p>E-posta adresini gir, sana sıfırlama bağlantısı gönderelim.</p>
+                    <form id="forgotForm">
                         <div class="form-group">
                             <label>E-posta Adresi</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="loginEmail" placeholder="ogrenci@site.com" required>
+                                <input type="email" id="forgotEmail" placeholder="Kayıtlı e-posta adresin" required>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label>Şifre</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="loginPass" placeholder="Şifreniz" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-submit" id="loginBtn">Giriş Yap</button>
+                        <button type="submit" class="btn-submit" id="forgotBtn">Bağlantı Gönder</button>
                     </form>
                 </div>
 
@@ -150,13 +152,8 @@
 
     <footer>
         <div class="container footer-content">
-            <div class="footer-brand">
-                <h2>UniNot</h2>
-                <p>Öğrencilerin dijital kütüphanesi.</p>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2025 UniNot.</p>
-            </div>
+            <div class="footer-brand"><h2>UniNot</h2><p>Öğrencilerin dijital kütüphanesi.</p></div>
+            <div class="copyright"><p>&copy; 2025 UniNot.</p></div>
         </div>
     </footer>
 
@@ -165,21 +162,29 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // Elementleri Seçelim
+        // Elementler
         const showLoginBtn = document.getElementById('showLoginBtn');
         const showRegisterBtn = document.getElementById('showRegisterBtn');
+        const toggleButtons = document.getElementById('toggleButtons');
+        
         const loginContainer = document.getElementById('loginContainer');
         const registerContainer = document.getElementById('registerContainer');
+        const forgotContainer = document.getElementById('forgotContainer');
 
+        const forgotPassLink = document.getElementById('forgotPassLink');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+        // Formlar ve Butonlar
         const registerForm = document.getElementById('registerForm');
         const loginForm = document.getElementById('loginForm');
-        const regBtn = document.getElementById('regBtn');
-        const loginBtn = document.getElementById('loginBtn');
+        const forgotForm = document.getElementById('forgotForm');
 
-        // 1. Ekranlar Arası Geçiş (Toggle)
+        // EKRAN GEÇİŞLERİ
         showLoginBtn.addEventListener('click', () => {
             loginContainer.classList.remove('hidden');
             registerContainer.classList.add('hidden');
+            forgotContainer.classList.add('hidden');
+            toggleButtons.classList.remove('hidden');
             showLoginBtn.classList.add('active');
             showRegisterBtn.classList.remove('active');
         });
@@ -187,16 +192,34 @@
         showRegisterBtn.addEventListener('click', () => {
             registerContainer.classList.remove('hidden');
             loginContainer.classList.add('hidden');
+            forgotContainer.classList.add('hidden');
+            toggleButtons.classList.remove('hidden');
             showRegisterBtn.classList.add('active');
             showLoginBtn.classList.remove('active');
         });
 
-        // 2. KAYIT OLMA İŞLEMİ
+        // Şifremi Unuttum Ekranını Aç
+        forgotPassLink.addEventListener('click', () => {
+            loginContainer.classList.add('hidden');
+            registerContainer.classList.add('hidden');
+            toggleButtons.classList.add('hidden'); // Üst butonları gizle
+            forgotContainer.classList.remove('hidden');
+        });
+
+        // Geri Dön
+        backToLoginBtn.addEventListener('click', () => {
+            forgotContainer.classList.add('hidden');
+            loginContainer.classList.remove('hidden');
+            toggleButtons.classList.remove('hidden');
+        });
+
+        // --- İŞLEMLER ---
+
+        // 1. KAYIT OL
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            regBtn.innerText = "Kayıt Yapılıyor...";
-            regBtn.disabled = true;
+            const btn = document.getElementById('regBtn');
+            btn.innerText = "İşleniyor..."; btn.disabled = true;
 
             const name = document.getElementById('regName').value;
             const uni = document.getElementById('regUni').value;
@@ -205,82 +228,73 @@
             const password = document.getElementById('regPass').value;
 
             try {
-                // A) Supabase Auth'a Kayıt Et
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
-
+                const { data, error } = await supabase.auth.signUp({ email, password });
                 if (error) throw error;
 
-                // B) Detayları 'profiles' Tablosuna Ekle
                 if (data.user) {
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .insert([{ 
-                            id: data.user.id, 
-                            full_name: name, 
-                            email: email,
-                            university: uni,     // Yeni eklediğimiz sütun
-                            department: dept     // Yeni eklediğimiz sütun
-                        }]);
-                    
-                    if (profileError) throw profileError;
+                    await supabase.from('profiles').insert([{ 
+                        id: data.user.id, full_name: name, email: email, university: uni, department: dept 
+                    }]);
                 }
-
                 alert("Kayıt Başarılı! Giriş yapılıyor...");
                 window.location.href = "kredilerim.html"; 
 
             } catch (error) {
                 alert("Hata: " + error.message);
-                console.error(error);
             } finally {
-                regBtn.innerText = "Hesap Oluştur";
-                regBtn.disabled = false;
+                btn.innerText = "Hesap Oluştur"; btn.disabled = false;
             }
         });
 
-        // 3. GİRİŞ YAPMA İŞLEMİ
+        // 2. GİRİŞ YAP
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            loginBtn.innerText = "Kontrol Ediliyor...";
-            loginBtn.disabled = true;
-
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPass').value;
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Kontrol..."; btn.disabled = true;
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
+                const { error } = await supabase.auth.signInWithPassword({
+                    email: document.getElementById('loginEmail').value,
+                    password: document.getElementById('loginPass').value
+                });
+                if (error) throw error;
+                window.location.href = "kredilerim.html";
+            } catch (error) {
+                alert("Giriş Başarısız: E-posta veya şifre hatalı.");
+            } finally {
+                btn.innerText = "Giriş Yap"; btn.disabled = false;
+            }
+        });
+
+        // 3. ŞİFRE SIFIRLAMA MAİLİ GÖNDER
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('forgotBtn');
+            const email = document.getElementById('forgotEmail').value;
+            
+            btn.innerText = "Gönderiliyor..."; btn.disabled = true;
+
+            try {
+                // Şifre sıfırlama linki nereye dönecek? (Otomatik algılar)
+                const redirectUrl = window.location.origin + '/sifre-yenile.html';
+                
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: redirectUrl,
                 });
 
                 if (error) throw error;
 
-                // Başarılıysa yönlendir
-                window.location.href = "kredilerim.html";
+                alert("E-posta gönderildi! Lütfen gelen kutunu (ve spam klasörünü) kontrol et.");
+                forgotContainer.classList.add('hidden');
+                loginContainer.classList.remove('hidden');
+                toggleButtons.classList.remove('hidden');
 
             } catch (error) {
-                alert("Giriş Başarısız: " + "E-posta veya şifre hatalı.");
-                console.error(error);
+                alert("Hata: " + error.message);
             } finally {
-                loginBtn.innerText = "Giriş Yap";
-                loginBtn.disabled = false;
+                btn.innerText = "Bağlantı Gönder"; btn.disabled = false;
             }
         });
-
-        // Sayfa açıldığında kullanıcı zaten giriş yapmış mı kontrol et?
-        // Yapmışsa direkt kredilerim sayfasına atabiliriz (Opsiyonel)
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                // Kullanıcı zaten girişli, tekrar giriş sayfasına gelmesine gerek yok
-                // window.location.href = "kredilerim.html"; 
-                // (Bunu yorum satırı yaptım, test ederken zorluk çıkarmasın diye)
-            }
-        }
-        checkSession();
 
     </script>
 </body>
