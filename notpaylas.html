@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Not Paylaş | UniNot</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="Anasayfa.css">
     <link rel="stylesheet" href="NotPaylas.css">
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -31,7 +33,7 @@
 
     <section class="upload-section">
         <div class="container">
-            
+
             <div class="upload-header">
                 <h1>Ders Notunu Paylaş</h1>
                 <p>Notlarını yükle, fiyatını belirle ve kazanmaya başla.</p>
@@ -39,7 +41,7 @@
 
             <div class="upload-container">
                 <form id="uploadForm" class="upload-form">
-                    
+
                     <div class="file-drop-area">
                         <span class="fake-btn">Dosya Seç</span>
                         <span class="file-msg">veya sürükleyip buraya bırak</span>
@@ -48,27 +50,28 @@
                     </div>
 
                     <div class="form-grid">
-                        
+
                         <div class="form-group">
                             <label><i class="fa-solid fa-book"></i> Ders Adı</label>
                             <input type="text" id="lessonName" placeholder="Örn: Matematik 1 - Vize Notları" required>
                         </div>
 
                         <div class="form-group">
-                            <label><i class="fa-solid fa-layer-group"></i> Bölüm / Kategori</label>
-                            <select id="category" required>
-                                <option value="" disabled selected>Seçiniz...</option>
-                                <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
-                                <option value="Hukuk">Hukuk</option>
-                                <option value="Tıp">Tıp</option>
-                                <option value="İşletme">İşletme</option>
-                                <option value="Diğer">Diğer</option>
-                            </select>
+                            <label><i class="fa-solid fa-layer-group"></i> Bölüm / Program</label>
+                            <div class="search-dropdown">
+                                <input type="text" id="categoryInput" placeholder="Bölüm ara (Örn: Yönetim Bilişim...)"
+                                    autocomplete="off">
+                                <div id="categoryList" class="dropdown-list"></div>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label><i class="fa-solid fa-building-columns"></i> Üniversite</label>
-                            <input type="text" id="university" placeholder="Örn: İstanbul Üniversitesi" required>
+                            <div class="search-dropdown">
+                                <input type="text" id="universityInput"
+                                    placeholder="Üniversite ara (Örn: Mehmet Akif...)" autocomplete="off">
+                                <div id="universityList" class="dropdown-list"></div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -79,7 +82,9 @@
 
                     <div class="form-group full-width">
                         <label><i class="fa-solid fa-pen"></i> Not Hakkında Açıklama</label>
-                        <textarea id="description" rows="4" placeholder="Notun içeriği hakkında bilgi ver... (Hangi konular var, kaç sayfa vb.)" required></textarea>
+                        <textarea id="description" rows="4"
+                            placeholder="Notun içeriği hakkında bilgi ver... (Hangi konular var, kaç sayfa vb.)"
+                            required></textarea>
                     </div>
 
                     <div class="form-action">
@@ -126,9 +131,173 @@
         </div>
     </footer>
 
-   <script type="module">
+  <script type="module">
         import { supabase } from './supabase.js';
 
+        // --- VERİ LİSTELERİ (Genişletilebilir) ---
+        const universities = [
+            "Abant İzzet Baysal Üniversitesi", "Abdullah Gül Üniversitesi", "Acıbadem Mehmet Ali Aydınlar Üniversitesi", 
+            "Adana Alparslan Türkeş Bilim ve Teknoloji Üniversitesi", "Adıyaman Üniversitesi", "Afyon Kocatepe Üniversitesi", 
+            "Afyonkarahisar Sağlık Bilimleri Üniversitesi", "Ağrı İbrahim Çeçen Üniversitesi", "Akdeniz Üniversitesi", 
+            "Aksaray Üniversitesi", "Alanya Alaaddin Keykubat Üniversitesi", "Alanya Hamdullah Emin Paşa Üniversitesi", 
+            "Altınbaş Üniversitesi", "Amasya Üniversitesi", "Anadolu Üniversitesi", "Ankara Bilim Üniversitesi", 
+            "Ankara Hacı Bayram Veli Üniversitesi", "Ankara Medipol Üniversitesi", "Ankara Müzik ve Güzel Sanatlar Üniversitesi", 
+            "Ankara Sosyal Bilimler Üniversitesi", "Ankara Üniversitesi", "Ankara Yıldırım Beyazıt Üniversitesi", 
+            "Antalya Akev Üniversitesi", "Antalya Bilim Üniversitesi", "Ardahan Üniversitesi", "Artvin Çoruh Üniversitesi", 
+            "Ataşehir Adıgüzel Meslek Yüksekokulu", "Atatürk Üniversitesi", "Atılım Üniversitesi", "Avrasya Üniversitesi", 
+            "Aydın Adnan Menderes Üniversitesi", "Bahçeşehir Üniversitesi", "Balıkesir Üniversitesi", 
+            "Bandırma Onyedi Eylül Üniversitesi", "Bartın Üniversitesi", "Başkent Üniversitesi", "Batman Üniversitesi", 
+            "Bayburt Üniversitesi", "Beykent Üniversitesi", "Beykoz Üniversitesi", "Bezmiâlem Vakıf Üniversitesi", 
+            "Bilecik Şeyh Edebali Üniversitesi", "Bingöl Üniversitesi", "Biruni Üniversitesi", "Bitlis Eren Üniversitesi", 
+            "Boğaziçi Üniversitesi", "Bolu Abant İzzet Baysal Üniversitesi", "Burdur Mehmet Akif Ersoy Üniversitesi", 
+            "Bursa Teknik Üniversitesi", "Bursa Uludağ Üniversitesi", "Çağ Üniversitesi", "Çanakkale Onsekiz Mart Üniversitesi", 
+            "Çankaya Üniversitesi", "Çankırı Karatekin Üniversitesi", "Çukurova Üniversitesi", "Dicle Üniversitesi", 
+            "Doğuş Üniversitesi", "Dokuz Eylül Üniversitesi", "Düzce Üniversitesi", "Ege Üniversitesi", "Erciyes Üniversitesi", 
+            "Erzincan Binali Yıldırım Üniversitesi", "Erzurum Teknik Üniversitesi", "Eskişehir Osmangazi Üniversitesi", 
+            "Eskişehir Teknik Üniversitesi", "Fatih Sultan Mehmet Vakıf Üniversitesi", "Fenerbahçe Üniversitesi", 
+            "Fırat Üniversitesi", "Galatasaray Üniversitesi", "Gazi Üniversitesi", "Gaziantep İslam Bilim ve Teknoloji Üniversitesi", 
+            "Gaziantep Üniversitesi", "Gebze Teknik Üniversitesi", "Giresun Üniversitesi", "Gümüşhane Üniversitesi", 
+            "Hacettepe Üniversitesi", "Hakkari Üniversitesi", "Haliç Üniversitesi", "Harran Üniversitesi", 
+            "Hasan Kalyoncu Üniversitesi", "Hatay Mustafa Kemal Üniversitesi", "Hitit Üniversitesi", "Iğdır Üniversitesi", 
+            "Isparta Uygulamalı Bilimler Üniversitesi", "Işık Üniversitesi", "İbn Haldun Üniversitesi", 
+            "İhsan Doğramacı Bilkent Üniversitesi", "İnönü Üniversitesi", "İskenderun Teknik Üniversitesi", 
+            "İstanbul Arel Üniversitesi", "İstanbul Atlas Üniversitesi", "İstanbul Aydın Üniversitesi", 
+            "İstanbul Ayvansaray Üniversitesi", "İstanbul Bilgi Üniversitesi", "İstanbul Galata Üniversitesi", 
+            "İstanbul Gelişim Üniversitesi", "İstanbul Kent Üniversitesi", "İstanbul Kültür Üniversitesi", 
+            "İstanbul Medeniyet Üniversitesi", "İstanbul Medipol Üniversitesi", "İstanbul Okan Üniversitesi", 
+            "İstanbul Rumeli Üniversitesi", "İstanbul Sabahattin Zaim Üniversitesi", "İstanbul Sağlık ve Teknoloji Üniversitesi", 
+            "İstanbul Teknik Üniversitesi", "İstanbul Ticaret Üniversitesi", "İstanbul Topkapı Üniversitesi", 
+            "İstanbul Üniversitesi", "İstanbul Üniversitesi-Cerrahpaşa", "İstanbul Yeni Yüzyıl Üniversitesi", 
+            "İstanbul 29 Mayıs Üniversitesi", "İstinye Üniversitesi", "İzmir Bakırçay Üniversitesi", 
+            "İzmir Demokrasi Üniversitesi", "İzmir Ekonomi Üniversitesi", "İzmir Katip Çelebi Üniversitesi", 
+            "İzmir Kavram Meslek Yüksekokulu", "İzmir Tınaztepe Üniversitesi", "İzmir Yüksek Teknoloji Enstitüsü", 
+            "Kadir Has Üniversitesi", "Kafkas Üniversitesi", "Kahramanmaraş İstiklal Üniversitesi", 
+            "Kahramanmaraş Sütçü İmam Üniversitesi", "Kapadokya Üniversitesi", "Karabük Üniversitesi", 
+            "Karadeniz Teknik Üniversitesi", "Karamanoğlu Mehmetbey Üniversitesi", "Karatay Üniversitesi", 
+            "Kastamonu Üniversitesi", "Kırıkkale Üniversitesi", "Kırklareli Üniversitesi", "Kırşehir Ahi Evran Üniversitesi", 
+            "Kilis 7 Aralık Üniversitesi", "Kocaeli Sağlık ve Teknoloji Üniversitesi", "Kocaeli Üniversitesi", 
+            "Koç Üniversitesi", "Konya Gıda ve Tarım Üniversitesi", "Konya Teknik Üniversitesi", "Kütahya Dumlupınar Üniversitesi", 
+            "Kütahya Sağlık Bilimler Üniversitesi", "Lokman Hekim Üniversitesi", "Malatya Turgut Özal Üniversitesi", 
+            "Manisa Celal Bayar Üniversitesi", "Mardin Artuklu Üniversitesi", "Marmara Üniversitesi", 
+            "MEF Üniversitesi", "Mersin Üniversitesi", "Mimar Sinan Güzel Sanatlar Üniversitesi", 
+            "Mudanya Üniversitesi", "Muğla Sıtkı Koçman Üniversitesi", "Munzur Üniversitesi", "Muş Alparslan Üniversitesi", 
+            "Necmettin Erbakan Üniversitesi", "Nevşehir Hacı Bektaş Veli Üniversitesi", "Niğde Ömer Halisdemir Üniversitesi", 
+            "Nişantaşı Üniversitesi", "Nuh Naci Yazgan Üniversitesi", "Ondokuz Mayıs Üniversitesi", "Ordu Üniversitesi", 
+            "Orta Doğu Teknik Üniversitesi", "Osmaniye Korkut Ata Üniversitesi", "Ostim Teknik Üniversitesi", 
+            "Özyeğin Üniversitesi", "Pamukkale Üniversitesi", "Piri Reis Üniversitesi", "Recep Tayyip Erdoğan Üniversitesi", 
+            "Sabancı Üniversitesi", "Sağlık Bilimleri Üniversitesi", "Sakarya Uygulamalı Bilimler Üniversitesi", 
+            "Sakarya Üniversitesi", "Samsun Üniversitesi", "Sanko Üniversitesi", "Selçuk Üniversitesi", "Siirt Üniversitesi", 
+            "Sinop Üniversitesi", "Sivas Bilim ve Teknoloji Üniversitesi", "Sivas Cumhuriyet Üniversitesi", 
+            "Süleyman Demirel Üniversitesi", "Şırnak Üniversitesi", "Tarsus Üniversitesi", "TED Üniversitesi", 
+            "Tekirdağ Namık Kemal Üniversitesi", "TOBB Ekonomi ve Teknoloji Üniversitesi", "Tokat Gaziosmanpaşa Üniversitesi", 
+            "Toros Üniversitesi", "Trabzon Üniversitesi", "Trakya Üniversitesi", "Türk Hava Kurumu Üniversitesi", 
+            "Türk-Alman Üniversitesi", "Türkiye Uluslararası İslam, Bilim ve Teknoloji Üniversitesi", 
+            "Türk-Japon Bilim ve Teknoloji Üniversitesi", "Ufuk Üniversitesi", "Uşak Üniversitesi", "Üsküdar Üniversitesi", 
+            "Van Yüzüncü Yıl Üniversitesi", "Yalova Üniversitesi", "Yaşar Üniversitesi", "Yeditepe Üniversitesi", 
+            "Yıldız Teknik Üniversitesi", "Yüksek İhtisas Üniversitesi", "Zonguldak Bülent Ecevit Üniversitesi"
+        ];
+
+        const departments = [
+            "Acil Yardım ve Afet Yönetimi", "Adalet", "Ağız ve Diş Sağlığı", "Aile ve Tüketici Bilimleri", 
+            "Aktüerya Bilimleri", "Alman Dili ve Edebiyatı", "Amerikan Kültürü ve Edebiyatı", "Antrenörlük Eğitimi", 
+            "Arkeoloji", "Astronomi ve Uzay Bilimleri", "Aşçılık", "Bankacılık ve Sigortacılık", "Beslenme ve Diyetetik", 
+            "Bilgisayar Mühendisliği", "Bilgisayar Programcılığı", "Bilgisayar ve Öğretim Teknolojileri Öğretmenliği", 
+            "Bilgi ve Belge Yönetimi", "Bitki Koruma", "Biyokimya", "Biyoloji", "Biyomedikal Mühendisliği", 
+            "Biyosistem Mühendisliği", "Biyoteknoloji", "Coğrafya", "Çalışma Ekonomisi ve Endüstri İlişkileri", 
+            "Çeviri Bilim", "Çevre Mühendisliği", "Çocuk Gelişimi", "Deniz Ulaştırma İşletme Mühendisliği", 
+            "Dergi ve Fuar Yayıncılığı", "Diş Hekimliği", "Ebelik", "Eczacılık", "Elektrik Mühendisliği", 
+            "Elektrik-Elektronik Mühendisliği", "Elektronik ve Haberleşme Mühendisliği", "Endüstri Mühendisliği", 
+            "Endüstriyel Tasarım", "Enerji Sistemleri Mühendisliği", "Ergoterapi", "Fen Bilgisi Öğretmenliği", 
+            "Felsefe", "Fizik", "Fizik Tedavi ve Rehabilitasyon", "Gastronomi ve Mutfak Sanatları", 
+            "Gazetecilik", "Gemi İnşaatı ve Gemi Makineleri Mühendisliği", "Genetik ve Biyomühendislik", 
+            "Gıda Mühendisliği", "Görsel İletişim Tasarımı", "Grafik Tasarım", "Halkla İlişkiler ve Tanıtım", 
+            "Harita Mühendisliği", "Havacılık ve Uzay Mühendisliği", "Hemşirelik", "Hukuk", "İç Mimarlık", 
+            "İç Mimarlık ve Çevre Tasarımı", "İktisat", "İlahiyat", "İletişim Bilimleri", "İletişim Tasarımı", 
+            "İlk ve Acil Yardım", "İlköğretim Matematik Öğretmenliği", "İngiliz Dili ve Edebiyatı", 
+            "İngilizce Öğretmenliği", "İnşaat Mühendisliği", "İstatistik", "İş Sağlığı ve Güvenliği", 
+            "İşletme", "Jeofizik Mühendisliği", "Jeoloji Mühendisliği", "Kamu Yönetimi", "Kimya", 
+            "Kimya Mühendisliği", "Klinik Psikoloji", "Lojistik Yönetimi", "Maden Mühendisliği", 
+            "Makine Mühendisliği", "Maliye", "Malzeme Bilimi ve Mühendisliği", "Matematik", 
+            "Matematik Mühendisliği", "Medya ve İletişim", "Mekatronik Mühendisliği", "Metalurji ve Malzeme Mühendisliği", 
+            "Meteoroloji Mühendisliği", "Mimarlık", "Moleküler Biyoloji ve Genetik", "Muhasebe ve Finans Yönetimi", 
+            "Mütercim Tercümanlık", "Nanoteknoloji Mühendisliği", "Nükleer Enerji Mühendisliği", "Odyoloji", 
+            "Okul Öncesi Öğretmenliği", "Optisyenlik", "Orman Endüstri Mühendisliği", "Orman Mühendisliği", 
+            "Otomotiv Mühendisliği", "Özel Eğitim Öğretmenliği", "Pazarlama", "Petrol ve Doğalgaz Mühendisliği", 
+            "Peyzaj Mimarlığı", "Pilotaj", "Psikoloji", "Psikolojik Danışmanlık ve Rehberlik", 
+            "Radyo, Televizyon ve Sinema", "Reklamcılık", "Rehberlik ve Psikolojik Danışmanlık", 
+            "Rus Dili ve Edebiyatı", "Sağlık Yönetimi", "Sanat Tarihi", "Sınıf Öğretmenliği", 
+            "Siyaset Bilimi ve Kamu Yönetimi", "Siyaset Bilimi ve Uluslararası İlişkiler", "Sosyal Hizmet", 
+            "Sosyoloji", "Spor Yöneticiliği", "Su Ürünleri Mühendisliği", "Tarih", "Tarım Ekonomisi", 
+            "Tekstil Mühendisliği", "Tıp", "Tıbbi Dokümantasyon ve Sekreterlik", "Tıbbi Görüntüleme Teknikleri", 
+            "Tıbbi Laboratuvar Teknikleri", "Turizm İşletmeciliği", "Turizm Rehberliği", "Türk Dili ve Edebiyatı", 
+            "Türkçe Öğretmenliği", "Uçak Mühendisliği", "Uluslararası İlişkiler", "Uluslararası Ticaret ve Lojistik", 
+            "Veterinerlik", "Yazılım Mühendisliği", "Yeni Medya", "Yönetim Bilişim Sistemleri", "Ziraat Mühendisliği", 
+            "Zootekni"
+        ];
+
+        // --- SIRALAMA (Türkçe A-Z) ---
+        universities.sort((a, b) => a.localeCompare(b, 'tr'));
+        departments.sort((a, b) => a.localeCompare(b, 'tr'));
+
+        // --- FONKSİYONLAR ---
+
+        // Dropdown Kurulumu
+        function setupSearchDropdown(inputId, listId, dataArray) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            // 1. Yazarken Filtrele
+            input.addEventListener('input', () => {
+                const val = input.value.toLocaleLowerCase('tr');
+                list.innerHTML = ''; // Listeyi temizle
+                
+                if (!val) {
+                    list.classList.remove('show');
+                    return;
+                }
+
+                // Eşleşenleri Bul
+                const filtered = dataArray.filter(item => 
+                    item.toLocaleLowerCase('tr').includes(val)
+                );
+
+                if (filtered.length > 0) {
+                    filtered.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'dropdown-item';
+                        div.textContent = item;
+                        
+                        // Tıklayınca Seç
+                        div.addEventListener('click', () => {
+                            input.value = item;
+                            list.classList.remove('show');
+                        });
+                        
+                        list.appendChild(div);
+                    });
+                    list.classList.add('show');
+                } else {
+                    list.classList.remove('show');
+                }
+            });
+
+            // 2. Tıklayınca Tüm Listeyi Göster (Opsiyonel, istersek açabiliriz)
+            // input.addEventListener('focus', () => { ... });
+
+            // 3. Dışarı Tıklayınca Kapat
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.remove('show');
+                }
+            });
+        }
+
+        // Dropdownları Başlat
+        setupSearchDropdown('universityInput', 'universityList', universities);
+        setupSearchDropdown('categoryInput', 'categoryList', departments);
+
+
+        // --- MEVCUT SUPABASE KODLARI (Güncellendi) ---
         const uploadForm = document.getElementById('uploadForm');
         const fileInput = document.getElementById('fileInput');
         const fileMsg = document.querySelector('.file-msg');
@@ -136,12 +305,10 @@
         const authBtn = document.getElementById('authBtn');
         let currentUser = null;
 
-        // Dosya ismi gösterme
         fileInput.addEventListener('change', () => {
             if(fileInput.files.length > 0) fileMsg.textContent = fileInput.files[0].name;
         });
 
-        // Giriş Kontrolü
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -149,27 +316,37 @@
                 authBtn.innerText = "Hesabım";
                 authBtn.href = "kredilerim.html"; 
             } else {
-                alert("Önce kayıt olup giriş yapmalısınız.");
+                alert("Not paylaşmak için lütfen önce giriş yapın.");
                 window.location.href = "Kayit.html";
             }
         }
         checkUser();
 
-        // Yükleme İşlemi
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) return;
 
+            // YENİ INPUTLARDAN DEĞERLERİ AL
+            const uniValue = document.getElementById('universityInput').value;
+            const catValue = document.getElementById('categoryInput').value;
+
+            // Kontrol: Boş bırakılmasın
+            if(!uniValue || !catValue) {
+                alert("Lütfen Üniversite ve Bölüm seçiniz.");
+                return;
+            }
+
+            // Buton kilitleme
+            const originalBtnText = submitBtn.innerHTML;
             submitBtn.innerHTML = 'Yükleniyor...';
             submitBtn.disabled = true;
 
             const file = fileInput.files[0];
-            // Türkçe karakter sorunu olmasın diye ismi temizleyelim
             const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
             const fileName = `${Date.now()}_${cleanName}`;
 
             try {
-                // 1. Dosyayı Yükle
+                // 1. Dosya Yükle
                 const { error: uploadError } = await supabase.storage
                     .from('notlar')
                     .upload(fileName, file);
@@ -177,35 +354,38 @@
                 if (uploadError) throw uploadError;
 
                 // 2. URL al
-                const { data: urlData } = supabase.storage
+                const { data: { publicUrl } } = supabase.storage
                     .from('notlar')
                     .getPublicUrl(fileName);
 
                 // 3. Veritabanına Yaz
-                const { error: dbError } = await supabase.from('notes').insert([{
-                    lesson_name: document.getElementById('lessonName').value,
-                    category: document.getElementById('category').value,
-                    university: document.getElementById('university').value,
-                    price: document.getElementById('price').value,
-                    description: document.getElementById('description').value,
-                    file_url: urlData.publicUrl,
-                    author_id: currentUser.id,
-                    author_email: currentUser.email
-                }]);
+                const { error: dbError } = await supabase
+                    .from('notes')
+                    .insert([{
+                        lesson_name: document.getElementById('lessonName').value,
+                        category: catValue,   // Yeni inputtan gelen değer
+                        university: uniValue, // Yeni inputtan gelen değer
+                        price: document.getElementById('price').value,
+                        description: document.getElementById('description').value,
+                        file_url: publicUrl,
+                        author_id: currentUser.id,
+                        author_email: currentUser.email
+                    }]);
 
                 if (dbError) throw dbError;
 
-                alert("Not başarıyla yüklendi!");
+                alert("Tebrikler! Notunuz başarıyla yayına alındı. 🚀");
                 window.location.href = "not-al.html";
 
             } catch (error) {
+                console.error("Hata:", error);
                 alert("Hata: " + error.message);
-                console.error(error);
             } finally {
-                submitBtn.innerHTML = 'Yayına Al';
+                submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
             }
         });
     </script>
 </body>
+
 </html>

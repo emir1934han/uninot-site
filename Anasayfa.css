@@ -1143,3 +1143,66 @@ footer a:hover {
         grid-column: span 1;
     }
 }
+/* --- Arama Özellikli Dropdown Tasarımı --- */
+.search-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.search-dropdown input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    font-size: 0.95rem;
+    color: #333;
+    transition: 0.3s;
+}
+
+.search-dropdown input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+/* Açılır Liste Kutusu */
+.dropdown-list {
+    position: absolute;
+    top: 105%; /* Inputun hemen altı */
+    left: 0;
+    width: 100%;
+    max-height: 250px; /* Çok uzamasın, scroll çıksın */
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none; /* Başlangıçta gizli */
+}
+
+/* Liste Elemanları */
+.dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 0.9rem;
+    color: #334155;
+    transition: 0.2s;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #4f46e5;
+    padding-left: 20px; /* Hover efekti */
+}
+
+/* Aktif (Görünür) Durum */
+.dropdown-list.show {
+    display: block;
+}
