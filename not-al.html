@@ -9,17 +9,79 @@
     <link rel="stylesheet" href="Anasayfa.css">
     
     <style>
-        /* Sidebar için ek stil */
-        .filter-group input[type="text"] {
+        /* --- Sidebar & Arama Stilleri --- */
+        .filter-group { margin-bottom: 25px; position: relative; }
+        
+        /* Dropdown Input Tasarımı */
+        .search-dropdown input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
-            margin-bottom: 10px;
+            font-size: 0.9rem;
+            transition: 0.3s;
         }
+        .search-dropdown input:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Açılır Liste Kutusu */
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none; /* Gizli */
+        }
+        .dropdown-list.show { display: block; }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .dropdown-item:hover { background: #f8fafc; color: #4f46e5; }
+
+        /* Yazar İsmi ve Kart Düzeni */
         .author-badge {
-            font-size: 0.8rem; color: #666; display: flex; align-items: center; gap: 5px; margin-bottom: 5px;
+            font-size: 0.85rem; 
+            color: #475569; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            margin-bottom: 8px;
+            font-weight: 500;
         }
+
+        /* Açıklama Alanı */
+        .desc-container {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .desc-full { display: none; } /* Uzun metin başta gizli */
+        .read-more-btn {
+            color: #4f46e5;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 2px;
+        }
+        .read-more-btn:hover { text-decoration: underline; }
+
     </style>
 </head>
 <body>
@@ -33,6 +95,7 @@
                 <li><a href="kredilerim.html">Kredilerim</a></li>
                 <li><a href="Kayit.html" class="btn-register" id="navAuthBtn">Kayıt Ol</a></li>
             </ul>
+            <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
         </div>
     </nav>
 
@@ -42,7 +105,7 @@
             <p>Gerçek öğrenciler tarafından yüklenen notları keşfet.</p>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Ders adı ara..." onkeyup="applyFilters()">
+                <input type="text" id="searchInput" placeholder="Ders adı, hoca adı veya konu ara..." onkeyup="applyFilters()">
                 <button onclick="applyFilters()">Ara</button>
             </div>
         </div>
@@ -54,18 +117,18 @@
             <aside class="sidebar">
                 <div class="filter-group">
                     <h3>Üniversite</h3>
-                    <input type="text" id="uniFilter" placeholder="Örn: ODTÜ" oninput="applyFilters()">
+                    <div class="search-dropdown">
+                        <input type="text" id="uniFilterInput" placeholder="Üniversite yaz..." autocomplete="off">
+                        <div id="uniList" class="dropdown-list"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
-                    <h3>Bölümler</h3>
-                    <ul>
-                        <li><input type="checkbox" class="cat-filter" value="Bilgisayar Mühendisliği" onchange="applyFilters()"> <label>Bilgisayar Müh.</label></li>
-                        <li><input type="checkbox" class="cat-filter" value="Hukuk" onchange="applyFilters()"> <label>Hukuk</label></li>
-                        <li><input type="checkbox" class="cat-filter" value="Tıp" onchange="applyFilters()"> <label>Tıp</label></li>
-                        <li><input type="checkbox" class="cat-filter" value="İşletme" onchange="applyFilters()"> <label>İşletme</label></li>
-                        <li><input type="checkbox" class="cat-filter" value="Mimarlık" onchange="applyFilters()"> <label>Mimarlık</label></li>
-                    </ul>
+                    <h3>Bölüm / Kategori</h3>
+                    <div class="search-dropdown">
+                        <input type="text" id="deptFilterInput" placeholder="Bölüm yaz..." autocomplete="off">
+                        <div id="deptList" class="dropdown-list"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
@@ -76,11 +139,14 @@
                         <li><input type="radio" name="sort" value="cheap" onchange="applyFilters()"> <label>Fiyata Göre (Artan)</label></li>
                     </ul>
                 </div>
+                
+                <button onclick="clearFilters()" style="width:100%; padding:10px; background:#e2e8f0; border:none; border-radius:8px; cursor:pointer; font-weight:600; color:#475569;">Filtreleri Temizle</button>
             </aside>
 
             <main class="notes-grid" id="notesContainer">
-                <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Notlar yükleniyor...
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color:#666;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px;"></i>
+                    <p>Notlar yükleniyor...</p>
                 </div>
             </main>
         </div>
@@ -98,13 +164,85 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
+        // --- 1. VERİ LİSTELERİ (Otomatik Tamamlama İçin) ---
+        // (Buraya notpaylas.html'deki listeleri kısaltarak koyuyorum, sen uzatabilirsin)
+        const universities = [
+            "Akdeniz Üniversitesi", "Anadolu Üniversitesi", "Ankara Üniversitesi", "Atatürk Üniversitesi",
+            "Boğaziçi Üniversitesi", "Bursa Uludağ Üniversitesi", "Çukurova Üniversitesi", "Dokuz Eylül Üniversitesi",
+            "Ege Üniversitesi", "Erciyes Üniversitesi", "Galatasaray Üniversitesi", "Gazi Üniversitesi",
+            "Hacettepe Üniversitesi", "İstanbul Teknik Üniversitesi", "İstanbul Üniversitesi",
+            "İzmir Yüksek Teknoloji Enstitüsü", "Koç Üniversitesi", "Marmara Üniversitesi",
+            "Mehmet Akif Ersoy Üniversitesi", "Orta Doğu Teknik Üniversitesi", "Sabancı Üniversitesi",
+            "Sakarya Üniversitesi", "Selçuk Üniversitesi", "Yıldız Teknik Üniversitesi"
+        ];
+
+        const departments = [
+            "Bilgisayar Mühendisliği", "Diş Hekimliği", "Eczacılık", "Elektrik-Elektronik Mühendisliği",
+            "Endüstri Mühendisliği", "Hukuk", "İç Mimarlık", "İktisat", "İlahiyat", "İngilizce Öğretmenliği",
+            "İnşaat Mühendisliği", "İşletme", "Makine Mühendisliği", "Mimarlık", "Psikoloji",
+            "Sınıf Öğretmenliği", "Siyaset Bilimi", "Tıp", "Yazılım Mühendisliği", "Yönetim Bilişim Sistemleri"
+        ];
+
+        // Listeleri Sırala
+        universities.sort((a, b) => a.localeCompare(b, 'tr'));
+        departments.sort((a, b) => a.localeCompare(b, 'tr'));
+
+
+        // --- 2. DROPDOWN MANTIĞI (Filtreleme İçin) ---
+        function setupFilterDropdown(inputId, listId, dataArray) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            input.addEventListener('input', () => {
+                const val = input.value.toLocaleLowerCase('tr');
+                list.innerHTML = '';
+                
+                // Anlık filtreleme de yapalım (Input değiştiği an listeyi güncelle)
+                applyFilters(); 
+
+                if (!val) {
+                    list.classList.remove('show');
+                    return;
+                }
+
+                const filtered = dataArray.filter(item => item.toLocaleLowerCase('tr').includes(val));
+                
+                if (filtered.length > 0) {
+                    filtered.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'dropdown-item';
+                        div.textContent = item;
+                        div.addEventListener('click', () => {
+                            input.value = item;
+                            list.classList.remove('show');
+                            applyFilters(); // Seçince filtrele
+                        });
+                        list.appendChild(div);
+                    });
+                    list.classList.add('show');
+                } else {
+                    list.classList.remove('show');
+                }
+            });
+
+            // Dışarı tıklayınca kapat
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.remove('show');
+                }
+            });
+        }
+
+        setupFilterDropdown('uniFilterInput', 'uniList', universities);
+        setupFilterDropdown('deptFilterInput', 'deptList', departments);
+
+
+        // --- 3. SUPABASE VE NOT İŞLEMLERİ ---
         const notesContainer = document.getElementById('notesContainer');
         const navAuthBtn = document.getElementById('navAuthBtn');
-        
         let currentUser = null;
-        let myPurchasedNoteIds = []; // Satın aldığım notların ID listesi
+        let myPurchasedNoteIds = [];
 
-        // 1. Kullanıcıyı ve Satın Aldıklarını Çek
         async function init() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -112,41 +250,37 @@
                 navAuthBtn.innerText = "Hesabım";
                 navAuthBtn.href = "kredilerim.html";
 
-                // Kullanıcının daha önce satın aldığı notların ID'lerini çek
                 const { data: transactions } = await supabase
                     .from('transactions')
                     .select('note_id')
                     .eq('buyer_id', user.id);
                 
-                if (transactions) {
-                    myPurchasedNoteIds = transactions.map(t => t.note_id);
-                }
+                if (transactions) myPurchasedNoteIds = transactions.map(t => t.note_id);
             }
-            applyFilters(); // Notları getir
+            applyFilters();
         }
         init();
 
-        // 2. Filtreleme ve Notları Getirme
+        // --- FİLTRELEME VE GETİRME ---
         window.applyFilters = async function() {
-            notesContainer.innerHTML = '<p style="text-align:center;">Yükleniyor...</p>';
+            // Yükleniyor ikonu (Grid yapısını bozmadan)
+            // Ancak her harfte yükleniyor çıkarsa kötü görünür, o yüzden sadece içerik yoksa koyalım
+            // notesContainer.innerHTML = '...'; 
 
             const searchVal = document.getElementById('searchInput').value;
-            const uniVal = document.getElementById('uniFilter').value;
-            
-            // Seçili kategorileri bul
-            const checkedCats = Array.from(document.querySelectorAll('.cat-filter:checked')).map(cb => cb.value);
-            
-            // Sıralama seçimi
+            const uniVal = document.getElementById('uniFilterInput').value;
+            const deptVal = document.getElementById('deptFilterInput').value;
             const sortVal = document.querySelector('input[name="sort"]:checked').value;
 
-            // Sorguyu Hazırla
-            let query = supabase.from('notes').select('*');
+            // SORGULAMA: Profiles tablosunu da JOIN yapıyoruz (Yazar ismini çekmek için)
+            let query = supabase
+                .from('notes')
+                .select('*, profiles(full_name)'); // İLİŞKİLİ TABLO SORGUSU
 
             if (searchVal) query = query.ilike('lesson_name', `%${searchVal}%`);
             if (uniVal) query = query.ilike('university', `%${uniVal}%`);
-            if (checkedCats.length > 0) query = query.in('category', checkedCats);
+            if (deptVal) query = query.ilike('category', `%${deptVal}%`);
 
-            // Sıralama Mantığı
             if (sortVal === 'newest') query = query.order('created_at', { ascending: false });
             else if (sortVal === 'popular') query = query.order('sales_count', { ascending: false });
             else if (sortVal === 'cheap') query = query.order('price', { ascending: true });
@@ -155,18 +289,17 @@
 
             if (error) {
                 console.error(error);
-                notesContainer.innerHTML = "Hata oluştu.";
                 return;
             }
             renderNotes(notes);
         }
 
-        // 3. Ekrana Basma
+        // --- LİSTELEME ---
         function renderNotes(notes) {
             notesContainer.innerHTML = "";
 
             if (!notes || notes.length === 0) {
-                notesContainer.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Aradığınız kriterde not bulunamadı.</p>';
+                notesContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px;">Aradığınız kriterde not bulunamadı.</div>';
                 return;
             }
 
@@ -174,27 +307,29 @@
                 const colors = ['', 'color-blue', 'color-green', 'color-purple'];
                 const randomColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // KONTROLLER
                 const isOwner = currentUser && (note.author_id === currentUser.id);
-                const isPurchased = myPurchasedNoteIds.includes(note.id); // Daha önce almış mı?
+                const isPurchased = myPurchasedNoteIds.includes(note.id);
                 
-                // BUTON DURUMU BELİRLEME
-                let btnText = `Satın Al (${note.price}₺)`;
-                let btnClass = "btn-buy";
-                let btnStyle = "";
-
-                if (isOwner) {
-                    btnText = "Senin Notun (İndir)";
-                    btnStyle = "background:#64748b; color:white;";
-                } else if (isPurchased) {
-                    btnText = "Satın Alındı (İndir)";
-                    btnStyle = "background:#16a34a; color:white;"; // Yeşil
-                } else if (note.price == 0) {
-                    btnText = "Ücretsiz İndir";
+                // Yazar İsmi (Profiles tablosundan gelir)
+                // Eğer JOIN çalışmazsa veya isim yoksa emaili kullan, o da yoksa Anonim de.
+                let authorName = "Anonim";
+                if (note.profiles && note.profiles.full_name) {
+                    authorName = note.profiles.full_name;
+                } else if (note.author_email) {
+                    authorName = note.author_email.split('@')[0];
                 }
 
-                // Yazar bilgisi (Emailin başı)
-                const authorName = note.author_email ? note.author_email.split('@')[0] : 'Anonim';
+                // Açıklama Mantığı (Kısa ve Uzun)
+                const fullDesc = note.description || "Açıklama yok.";
+                const shortDesc = fullDesc.length > 70 ? fullDesc.substring(0, 70) + "..." : fullDesc;
+                const hasMore = fullDesc.length > 70;
+
+                // Buton Durumu
+                let btnText = `Satın Al (${note.price}₺)`;
+                let btnStyle = "";
+                if (isOwner) { btnText = "Senin Notun (İndir)"; btnStyle = "background:#64748b;"; }
+                else if (isPurchased) { btnText = "Satın Alındı (İndir)"; btnStyle = "background:#16a34a;"; }
+                else if (note.price == 0) { btnText = "Ücretsiz İndir"; }
 
                 const cardHTML = `
                 <div class="note-card">
@@ -207,16 +342,21 @@
                         <h3 title="${note.lesson_name}">${note.lesson_name}</h3>
                         
                         <div class="author-badge">
-                            <i class="fa-solid fa-user"></i> ${authorName}
+                            <i class="fa-solid fa-user-pen"></i> ${authorName}
                         </div>
+                        
                         <div class="rating">
                             <i class="fa-solid fa-download"></i> ${note.sales_count || 0} İndirme
                         </div>
                         
-                        <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">${note.description ? note.description.substring(0,50)+'...' : ''}</p>
+                        <div class="desc-container">
+                            <span class="desc-short" id="short-${note.id}">${shortDesc}</span>
+                            <span class="desc-full" id="full-${note.id}">${fullDesc}</span>
+                            ${hasMore ? `<a class="read-more-btn" onclick="toggleDesc(${note.id})">Açıklamayı Göster</a>` : ''}
+                        </div>
 
                         <button onclick="window.handleNoteAction(${note.id}, '${note.file_url}', ${isOwner}, ${isPurchased})" 
-                            class="${btnClass}" style="width:100%; cursor:pointer; border:none; ${btnStyle}">
+                            class="btn-buy" style="width:100%; border:none; cursor:pointer; ${btnStyle}">
                             ${btnText}
                         </button>
                     </div>
@@ -226,53 +366,69 @@
             });
         }
 
-        // 4. BUTON AKSİYONU (Satın Al veya Direkt İndir)
+        // Açıklama Aç/Kapa Fonksiyonu (Global)
+        window.toggleDesc = function(id) {
+            const shortSpan = document.getElementById(`short-${id}`);
+            const fullSpan = document.getElementById(`full-${id}`);
+            const btn = event.target;
+
+            if (fullSpan.style.display === "inline") {
+                fullSpan.style.display = "none";
+                shortSpan.style.display = "inline";
+                btn.innerText = "Açıklamayı Göster";
+            } else {
+                fullSpan.style.display = "inline";
+                shortSpan.style.display = "none";
+                btn.innerText = "Gizle";
+            }
+        }
+
+        // Filtreleri Temizle
+        window.clearFilters = function() {
+            document.getElementById('searchInput').value = "";
+            document.getElementById('uniFilterInput').value = "";
+            document.getElementById('deptFilterInput').value = "";
+            applyFilters();
+        }
+
+        // --- SATIN ALMA / İNDİRME ---
         window.handleNoteAction = async function(noteId, fileUrl, isOwner, isPurchased) {
             if (!currentUser) {
-                alert("İşlem yapmak için giriş yapmalısınız.");
-                window.location.href = "Kayit.html";
+                if(confirm("İşlem yapmak için giriş yapmalısınız. Giriş sayfasına gidilsin mi?")) 
+                    window.location.href = "Kayit.html";
                 return;
             }
 
-            // Eğer not zaten benimse veya satın aldıysam, direkt aç (Para çekme!)
             if (isOwner || isPurchased) {
                 window.open(fileUrl, '_blank');
                 return;
             }
 
-            // Değilse, Satın Alma Fonksiyonunu Çağır
             if(!confirm("Bu notu satın almak istediğinize emin misiniz?")) return;
 
-            // Butonu bulup 'İşleniyor' yapalım (Basitçe)
             const btn = event.target;
             const originalText = btn.innerText;
-            btn.innerText = "İşleniyor...";
-            btn.disabled = true;
+            btn.innerText = "İşleniyor..."; btn.disabled = true;
 
             try {
                 const { data, error } = await supabase.rpc('buy_note', {
-                    note_row_id: noteId,
-                    client_id: currentUser.id
+                    note_row_id: noteId, client_id: currentUser.id
                 });
 
                 if (error) throw error;
 
                 if (data.success) {
                     alert(data.message);
-                    // Başarılı olunca listeyi yenile (Buton yeşile dönsün diye)
-                    // Ve anlık olarak satın alınanlar listesine ekle
                     myPurchasedNoteIds.push(noteId);
-                    
                     window.open(data.download_url, '_blank');
-                    applyFilters(); // Arayüzü güncelle
+                    applyFilters();
                 } else {
                     alert("Hata: " + data.message);
                 }
             } catch (err) {
-                alert("İşlem hatası: " + err.message);
+                alert("Hata: " + err.message);
             } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+                btn.innerText = originalText; btn.disabled = false;
             }
         }
     </script>
