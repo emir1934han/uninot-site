@@ -192,20 +192,22 @@
 
         const notesContainer = document.getElementById('notesContainer');
         const navAuthBtn = document.getElementById('navAuthBtn');
+        let currentUser = null;
 
-        // 1. Kullanıcı Giriş Durumu Kontrolü (Navbar için)
+        // 1. Kullanıcı Giriş Kontrolü
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                currentUser = user;
                 navAuthBtn.innerText = "Hesabım";
                 navAuthBtn.href = "kredilerim.html";
             }
         }
         checkUser();
 
-        // 2. Notları Veritabanından Çekme ve LİSTEYE EKLEME
+        // 2. Notları Listele
         async function fetchNotes(searchTerm = "") {
-            let query = supabase.from('notes').select('*');
+            let query = supabase.from('notes').select('*').order('created_at', { ascending: false });
 
             if (searchTerm) {
                 query = query.ilike('lesson_name', `%${searchTerm}%`);
@@ -218,16 +220,20 @@
                 return;
             }
 
-            // Mevcut statik notları silmeden, sadece yeni gelenleri ekliyoruz (Append)
             if (notes.length > 0) {
                 notes.forEach(note => {
                     const colors = ['', 'color-blue', 'color-green', 'color-purple'];
                     const randomColor = colors[Math.floor(Math.random() * colors.length)];
                     
+                    // Notun sahibi kendisi mi?
+                    const isOwner = currentUser && (note.author_id === currentUser.id);
+                    // Fiyat etiketi
+                    const priceLabel = note.price == 0 ? 'Ücretsiz' : note.price + ' ₺';
+                    
                     const cardHTML = `
                     <div class="note-card">
                         <div class="card-image ${randomColor}">
-                            <span class="badge-price">${note.price == 0 ? 'Ücretsiz' : note.price + '₺'}</span>
+                            <span class="badge-price">${priceLabel}</span>
                             <i class="fa-regular fa-file-pdf"></i>
                         </div>
                         <div class="card-body">
@@ -239,26 +245,66 @@
                             <div class="rating">
                                 <i class="fa-solid fa-star"></i> Yeni
                             </div>
-                            <a href="${note.file_url}" target="_blank" class="btn-buy">İndir / İncele</a>
+                            
+                            <button onclick="window.triggerPurchase(${note.id})" class="btn-buy" style="width:100%; cursor:pointer; border:none; margin-top:10px;">
+                                ${isOwner ? 'Kendi Notun (İndir)' : (note.price == 0 ? 'Ücretsiz İndir' : 'Satın Al ve İndir')}
+                            </button>
                         </div>
                     </div>
                     `;
-                    // Ekleme yapıyoruz (+=) silmiyoruz
                     notesContainer.innerHTML += cardHTML;
                 });
             }
         }
 
-        // Sayfa açılınca notları getir
         fetchNotes();
 
-        // Arama yapınca çalışacak kod (Arama yapınca listeyi temizleyip arananı getirmek mantıklıdır)
+        // Arama Fonksiyonu
         window.searchNotes = function() {
             const val = document.getElementById('searchInput').value;
-            // Sadece arama yapıldığında listeyi temizler, yoksa statik notlar karışır
             if(val) notesContainer.innerHTML = ""; 
             fetchNotes(val);
         }
+
+        // --- SATIN ALMA İŞLEMİ (Kritik Nokta) ---
+        window.triggerPurchase = async function(noteId) {
+            if (!currentUser) {
+                alert("Satın almak için lütfen önce giriş yapın.");
+                window.location.href = "Kayit.html";
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "İşleniyor...";
+            btn.disabled = true;
+
+            try {
+                // Supabase'deki "buy_note" fonksiyonunu çağır (RPC)
+                const { data, error } = await supabase.rpc('buy_note', {
+                    note_row_id: noteId,
+                    client_id: currentUser.id
+                });
+
+                if (error) throw error;
+
+                if (data.success) {
+                    alert(data.message);
+                    // Başarılıysa indirme linkini aç
+                    window.open(data.download_url, '_blank');
+                } else {
+                    alert("Hata: " + data.message);
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Bir hata oluştu: " + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
     </script>
 </body>
 </html>
