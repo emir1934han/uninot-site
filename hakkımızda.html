@@ -7,11 +7,119 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+    
     <style>
-        .page-content { padding: 60px 0; min-height: 60vh; }
-        .about-text { max-width: 800px; margin: 0 auto; line-height: 1.8; color: #334155; }
-        .about-text h1 { color: #1e293b; font-size: 2.5rem; margin-bottom: 20px; text-align: center; }
-        .about-text p { margin-bottom: 20px; font-size: 1.1rem; }
+        /* Modern Hakkımızda Stilleri */
+        
+        /* 1. Hero (Başlık) Alanı */
+        .about-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            border-radius: 0 0 50% 50% / 20px; /* Hafif oval alt kısım */
+        }
+        .about-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        .about-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* 2. Hikaye Alanı */
+        .story-section {
+            padding: 60px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .story-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #475569;
+            margin-bottom: 50px;
+        }
+        .story-text strong {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        /* 3. Kartlar (Misyon & Vizyon) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
+            border-color: #e0e7ff;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: #e0e7ff;
+            color: #4f46e5;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .info-card p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* 4. İstatistik Alanı (Opsiyonel Süsleme) */
+        .stats-stripe {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .stat-item { text-align: center; }
+        .stat-val { font-size: 2rem; font-weight: 700; color: #4f46e5; display: block; }
+        .stat-lbl { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Mobil Uyum */
+        @media (max-width: 768px) {
+            .about-hero h1 { font-size: 2.2rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -28,19 +136,58 @@
         </div>
     </nav>
 
-    <section class="page-content">
-        <div class="container about-text">
-            <h1>Biz Kimiz?</h1>
-            <p><strong>UniNot</strong>, üniversite öğrencilerinin akademik hayatlarını kolaylaştırmak, bilgi paylaşımını artırmak ve öğrencilere ek gelir imkanı sağlamak amacıyla kurulmuş yeni nesil bir not paylaşım platformudur.</p>
-            
-            <p>Öğrencilik hayatının zorluklarını biliyoruz. Kaçırılan dersler, eksik notlar ve sınav stresi... UniNot olarak amacımız, Türkiye'nin dört bir yanındaki öğrencileri tek bir çatı altında toplayarak dev bir dijital kütüphane oluşturmaktır.</p>
-
-            <h3>Misyonumuz</h3>
-            <p>Bilgiye erişimi demokratikleştirmek ve çalışkan öğrencilerin emeklerinin karşılığını almasını sağlamak.</p>
-
-            <h3>Vizyonumuz</h3>
-            <p>Türkiye'nin en büyük ve en güvenilir akademik kaynak havuzu olmak.</p>
+    <header class="about-hero">
+        <div class="container">
+            <h1>Geleceği Birlikte İnşa Ediyoruz</h1>
+            <p>Öğrencilerin akademik yolculuğundaki en güçlü dijital destekçisi.</p>
         </div>
+    </header>
+
+    <section class="story-section">
+        
+        <div class="story-text">
+            <p>
+                <strong>UniNot</strong>, üniversite sıralarında yaşanan not bulma telaşını sona erdirmek için doğdu. 
+                Kaçırılan dersler, okunmayan el yazıları ve sınav stresi artık tarih oluyor. 
+                Biz, bilginin paylaştıkça çoğaldığına ve her öğrencinin emeğinin değerli olduğuna inanıyoruz.
+            </p>
+        </div>
+
+        <div class="cards-grid">
+            <div class="info-card">
+                <div class="card-icon"><i class="fa-solid fa-rocket"></i></div>
+                <h3>Misyonumuz</h3>
+                <p>Akademik bilgiye erişimi demokratikleştirmek, öğrencilerin ders kaynaklarına saniyeler içinde ulaşmasını sağlamak ve not tutan çalışkan öğrencilere sürdürülebilir bir ek gelir kapısı oluşturmak.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon"><i class="fa-solid fa-eye"></i></div>
+                <h3>Vizyonumuz</h3>
+                <p>Türkiye'nin 81 ilindeki tüm üniversiteleri kapsayan, en güvenilir ve en geniş dijital akademik kaynak havuzu olmak. Öğrencilerin "Ders notu nerede?" sorusuna vereceği tek cevap olmak.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon"><i class="fa-solid fa-heart"></i></div>
+                <h3>Değerlerimiz</h3>
+                <p>Şeffaflık, güvenlik ve dayanışma. Öğrencilerin birbirine destek olduğu, emeğin karşılığını bulduğu ve bilginin özgürce dolaştığı bir topluluk kültürü inşa ediyoruz.</p>
+            </div>
+        </div>
+
+        <div class="stats-stripe">
+            <div class="stat-item">
+                <span class="stat-val">81</span>
+                <span class="stat-lbl">Şehir</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val">200+</span>
+                <span class="stat-lbl">Üniversite</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val">∞</span>
+                <span class="stat-lbl">Bilgi Paylaşımı</span>
+            </div>
+        </div>
+
     </section>
 
     <footer>
