@@ -9,13 +9,13 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* YAZDIRMAYI ENGELLE (CTRL+P yapılsa bile boş sayfa çıkar) */
-        @media print {
-            body { display: none !important; }
-        }
+        /* YAZDIRMAYI ENGELLE */
+        @media print { body { display: none !important; } }
 
         body {
             background-color: #1e1e1e;
@@ -49,9 +49,10 @@
             padding: 8px 15px;
             border-radius: 5px;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        #pdf-container {
+        #content-container {
             margin-top: 20px;
             display: flex;
             flex-direction: column;
@@ -59,18 +60,51 @@
             padding-bottom: 50px;
             width: 100%;
             align-items: center;
-            /* Ekran görüntüsü alındığında bulanıklaşması için CSS filtresi (Bazı tarayıcılarda işe yarar) */
-            filter: blur(0px); 
-            transition: filter 0.3s;
+            transition: filter 0.2s;
         }
 
+        /* PDF Canvas Stili */
         canvas {
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             max-width: 100%;
-            pointer-events: none; /* Sağ tık menüsünü tuval üzerinde de engelle */
+            pointer-events: none;
+        }
+
+        /* WORD Döküman Stili (Kağıt Görünümü) */
+        .word-page {
+            background: white;
+            color: black;
+            width: 21cm; /* A4 Genişliği */
+            min-height: 29.7cm;
+            padding: 2cm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+            position: relative; /* Filigran için */
+            font-family: 'Times New Roman', serif;
+            line-height: 1.5;
         }
         
-        /* Uyarı Mesajı Stili */
+        /* Word Filigranı (CSS ile) */
+        .css-watermark {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            font-weight: bold;
+            color: rgba(255, 0, 0, 0.15);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 10;
+            text-align: center;
+        }
+        .css-watermark-sub {
+            display: block;
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+
+        /* Güvenlik Uyarısı Ekranı */
         #securityAlert {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -86,133 +120,176 @@
         #securityAlert h1 { font-size: 3rem; margin-bottom: 20px; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <div id="securityAlert">
+<body oncontextmenu="return false;">
+
+    <div id="securityAlert">
         <h1>⚠️ GÜVENLİK UYARISI</h1>
-        <p>Ekran görüntüsü alma girişimi tespit edildi.</p>
-        <p>Bu işlem hesabınızın askıya alınmasına sebep olabilir.</p>
-        <button onclick="document.getElementById('securityAlert').style.display='none'" style="padding:10px 20px; font-size:1.2rem; cursor:pointer; margin-top:20px;">Tamam, Anladım</button>
+        <p>Ekran görüntüsü alma işlemi engellendi.</p>
     </div>
 
     <div class="header">
         <span id="docTitle">Döküman Yükleniyor...</span>
-        <button onclick="window.close();" class="btn-close">Kapat</button>
+        <button onclick="window.close()" class="btn-close">Kapat</button>
     </div>
 
-    <div id="pdf-container"></div>
+    <div id="content-container"></div>
 
     <script type="module">
         import { supabase } from './supabase.js';
 
-        const pdfContainer = document.getElementById('pdf-container');
+        const container = document.getElementById('content-container');
         const docTitle = document.getElementById('docTitle');
         const securityAlert = document.getElementById('securityAlert');
 
-        // --- GÜVENLİK (Anti-SS) ---
+        // --- GÜVENLİK (ANTI-SS) ---
+        // PrintScreen Tuşu
         document.addEventListener('keyup', (e) => {
             if (e.key === 'PrintScreen') {
                 navigator.clipboard.writeText('');
                 securityAlert.style.display = 'flex';
-                setTimeout(() => { securityAlert.style.display = 'none'; }, 3000);
+                setTimeout(() => { securityAlert.style.display = 'none'; }, 2000);
             }
         });
-        
-        // URL Parametreleri
+
+        // Kısayollar (Ctrl+P, S, Shift+S)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey && (e.key === 'p' || e.key === 's')) || (e.metaKey && e.shiftKey)) {
+                e.preventDefault();
+                alert("Korumalı içerik.");
+            }
+        });
+
+        // Pencere Odaktan Çıkarsa Bulanıklaştır (Opsiyonel Güvenlik)
+        window.addEventListener('blur', () => { container.style.filter = 'blur(10px)'; });
+        window.addEventListener('focus', () => { container.style.filter = 'none'; });
+
+
+        // --- ANA FONKSİYON ---
         const urlParams = new URLSearchParams(window.location.search);
         const noteId = urlParams.get('id');
 
-        if (!noteId) { alert("Hatalı link."); window.close(); }
+        if (!noteId) { alert("Link hatalı."); window.close(); }
 
         async function startViewer() {
             try {
-                // 1. Kullanıcı ve Yetki Kontrolü
+                // 1. Kullanıcı Kontrolü
                 const { data: { user } } = await supabase.auth.getUser();
-                if (!user) { alert("Giriş yapmalısınız."); window.close(); return; }
+                if (!user) { alert("Giriş yapın."); window.close(); return; }
 
-                // Not Verisini Çekme
+                // İsim Bilgisi
+                const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+                const displayName = profile?.full_name ? profile.full_name : user.email;
+
+                // 2. Not Bilgisi
                 const { data: note, error } = await supabase.from('notes').select('*').eq('id', noteId).single();
                 if (error || !note) throw new Error("Not bulunamadı.");
-
                 docTitle.innerText = note.lesson_name;
 
-                // Satın Alma Kontrolü
+                // 3. Yetki Kontrolü
                 let hasAccess = (note.author_id === user.id);
                 if (!hasAccess) {
                     const { data: tx } = await supabase.from('transactions').select('*').eq('buyer_id', user.id).eq('note_id', noteId).single();
                     if (tx) hasAccess = true;
                 }
-                if (!hasAccess) { alert("Yetkisiz erişim."); window.close(); return; }
+                if (!hasAccess) { alert("Bu notu satın almalısınız."); window.close(); return; }
 
-                // 2. DOSYA TÜRÜNE GÖRE İŞLEM
+                // 4. DOSYAYI İNDİR VE TÜRÜNÜ BELİRLE
                 const publicUrl = note.file_url;
                 const extension = publicUrl.split('.').pop().toLowerCase();
+                const pathParts = publicUrl.split('/notlar/');
+                const filePath = pathParts[1];
 
-                // === EĞER PDF İSE (BİZİM GÜVENLİ SİSTEM) ===
-                if (extension === 'pdf') {
-                    const pathParts = publicUrl.split('/notlar/');
-                    const filePath = pathParts[1];
-
+                // Eğer iframe kullanılmayacaksa dosyayı indir
+                if (extension === 'pdf' || extension === 'docx') {
                     const { data: blob, error: dlError } = await supabase.storage.from('notlar').download(filePath);
                     if (dlError) throw dlError;
 
                     const buffer = await blob.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument(buffer).promise;
 
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const viewport = page.getViewport({ scale: 1.5 });
-                        
-                        const canvas = document.createElement('canvas');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
-                        const ctx = canvas.getContext('2d');
-                        pdfContainer.appendChild(canvas);
-                        
-                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-                        // FİLİGRAN
-                        ctx.save();
-                        ctx.globalAlpha = 0.15;
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "middle";
-                        ctx.translate(canvas.width/2, canvas.height/2);
-                        ctx.rotate(-45 * Math.PI / 180);
-                        ctx.font = "bold 80px Arial"; 
-                        ctx.fillStyle = "red";
-                        ctx.fillText("UniNot.com", 0, -30); 
-                        ctx.font = "bold 30px Arial";
-                        ctx.fillStyle = "#333";
-                        ctx.fillText(displayName, 0, 40);
-                        ctx.restore();
+                    // --- PDF İSE ---
+                    if (extension === 'pdf') {
+                        renderPDF(buffer, displayName);
+                    } 
+                    // --- WORD (.docx) İSE ---
+                    else if (extension === 'docx') {
+                        renderWord(buffer, displayName);
                     }
                 } 
-                
-                // === EĞER OFFICE DOSYASI İSE (WORD, EXCEL, PPT) ===
-                else if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(extension)) {
-                    // Microsoft Viewer Kullan (iframe içinde)
-                    // Not: Bu yöntemde dinamik filigran basılamaz ama dosya görüntülenir.
-                    const encodedUrl = encodeURIComponent(publicUrl);
-                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
-                    
-                    pdfContainer.innerHTML = `
-                        <div style="width:100%; height:800px; background:white; padding:10px; border-radius:10px;">
-                             <iframe src="${viewerUrl}" width="100%" height="100%" frameborder="0">
-                                Bu tarayıcı bu dosyayı görüntüleyemiyor.
-                             </iframe>
-                             <p style="text-align:center; color:#666; margin-top:10px; font-size:0.9rem;">
-                                Not: Word/Excel dosyalarında filigran desteği sınırlıdır.
-                             </p>
-                        </div>
-                    `;
-                } 
-                
+                // --- EXCEL/PPT İSE (Hala Microsoft Viewer mecbur) ---
                 else {
-                    alert("Desteklenmeyen dosya formatı.");
+                    renderOfficeViewer(publicUrl);
                 }
 
             } catch (err) {
                 console.error(err);
                 alert("Hata: " + err.message);
             }
+        }
+
+        // --- PDF RENDER FONKSİYONU ---
+        async function renderPDF(buffer, watermarkText) {
+            const pdf = await pdfjsLib.getDocument(buffer).promise;
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 1.5 });
+                
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const ctx = canvas.getContext('2d');
+                container.appendChild(canvas);
+                
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                // Canvas Filigranı
+                ctx.save();
+                ctx.globalAlpha = 0.15;
+                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.rotate(-45 * Math.PI / 180);
+                ctx.textAlign = "center";
+                
+                ctx.font = "bold 80px Arial";
+                ctx.fillStyle = "red";
+                ctx.fillText("UniNot.com", 0, -30);
+                
+                ctx.font = "bold 30px Arial";
+                ctx.fillStyle = "#333";
+                ctx.fillText(watermarkText, 0, 40);
+                ctx.restore();
+            }
+        }
+
+        // --- WORD (.docx) RENDER FONKSİYONU (YENİ) ---
+        async function renderWord(buffer, watermarkText) {
+            // Mammoth.js ile HTML'e çevir
+            const result = await mammoth.convertToHtml({ arrayBuffer: buffer });
+            
+            // Kağıt görünümlü div oluştur
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'word-page';
+            pageDiv.innerHTML = result.value; // İçeriği bas
+
+            // Filigran Katmanı Ekle
+            const watermarkDiv = document.createElement('div');
+            watermarkDiv.className = 'css-watermark';
+            watermarkDiv.innerHTML = `
+                UniNot.com
+                <span class="css-watermark-sub">${watermarkText}</span>
+            `;
+
+            pageDiv.appendChild(watermarkDiv);
+            container.appendChild(pageDiv);
+        }
+
+        // --- DİĞERLERİ İÇİN VIEWER ---
+        function renderOfficeViewer(url) {
+            const encodedUrl = encodeURIComponent(url);
+            container.innerHTML = `
+                <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}" 
+                width="100%" height="800px" frameborder="0"></iframe>
+                <p style="color:#aaa;">Bu dosya türü için filigran desteği sınırlıdır.</p>
+            `;
         }
 
         startViewer();
