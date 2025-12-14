@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Not Görüntüleyici | UniNot</title>
+    <title>Güvenli Görüntüleyici | UniNot</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
@@ -12,6 +12,11 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* YAZDIRMAYI ENGELLE (CTRL+P yapılsa bile boş sayfa çıkar) */
+        @media print {
+            body { display: none !important; }
+        }
+
         body {
             background-color: #1e1e1e;
             color: white;
@@ -20,7 +25,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            user-select: none; /* Yazı seçmeyi engelle */
+            -webkit-user-select: none;
         }
+
         .header {
             width: 100%;
             padding: 15px;
@@ -29,7 +37,11 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #444;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
         .btn-close {
             background: #ef4444;
             color: white;
@@ -38,23 +50,7 @@
             border-radius: 5px;
             font-weight: bold;
         }
-        /* LOG EKRANI (Hata Tespiti İçin) */
-        #logConsole {
-            width: 90%;
-            max-width: 600px;
-            background: #000;
-            border: 1px solid #333;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-        .log-line { margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 2px; }
-        .log-info { color: #3b82f6; } /* Mavi */
-        .log-success { color: #22c55e; } /* Yeşil */
-        .log-error { color: #ef4444; font-weight: bold; } /* Kırmızı */
-        
+
         #pdf-container {
             margin-top: 20px;
             display: flex;
@@ -63,22 +59,43 @@
             padding-bottom: 50px;
             width: 100%;
             align-items: center;
+            /* Ekran görüntüsü alındığında bulanıklaşması için CSS filtresi (Bazı tarayıcılarda işe yarar) */
+            filter: blur(0px); 
+            transition: filter 0.3s;
         }
-        .pdf-page {
+
+        canvas {
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             max-width: 100%;
+            pointer-events: none; /* Sağ tık menüsünü tuval üzerinde de engelle */
         }
+        
+        /* Uyarı Mesajı Stili */
+        #securityAlert {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: black;
+            color: red;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            text-align: center;
+        }
+        #securityAlert h1 { font-size: 3rem; margin-bottom: 20px; }
     </style>
 </head>
-<body oncontextmenu="return false;">
-
-    <div class="header">
-        <span id="docTitle">Döküman Hazırlanıyor...</span>
-        <a href="kredilerim.html" class="btn-close">Kapat</a>
+<body oncontextmenu="return false;"> <div id="securityAlert">
+        <h1>⚠️ GÜVENLİK UYARISI</h1>
+        <p>Ekran görüntüsü alma girişimi tespit edildi.</p>
+        <p>Bu işlem hesabınızın askıya alınmasına sebep olabilir.</p>
+        <button onclick="document.getElementById('securityAlert').style.display='none'" style="padding:10px 20px; font-size:1.2rem; cursor:pointer; margin-top:20px;">Tamam, Anladım</button>
     </div>
 
-    <div id="logConsole">
-        <div class="log-line log-info">Sistem başlatılıyor...</div>
+    <div class="header">
+        <span id="docTitle">Döküman Yükleniyor...</span>
+        <button onclick="window.close();" class="btn-close">Kapat</button>
     </div>
 
     <div id="pdf-container"></div>
@@ -86,126 +103,138 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        const logConsole = document.getElementById('logConsole');
         const pdfContainer = document.getElementById('pdf-container');
         const docTitle = document.getElementById('docTitle');
+        const securityAlert = document.getElementById('securityAlert');
 
-        function log(msg, type = 'info') {
-            const div = document.createElement('div');
-            div.className = `log-line log-${type}`;
-            div.innerText = `> ${msg}`;
-            logConsole.appendChild(div);
-        }
+        // --- GÜVENLİK ÖNLEMLERİ (ANTI-SS) ---
+        
+        // 1. PrintScreen Tuşuna Basılırsa
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'PrintScreen') {
+                navigator.clipboard.writeText(''); // Panoyu temizle (Kopyalananı sil)
+                securityAlert.style.display = 'flex'; // Siyah ekranı aç
+                setTimeout(() => { securityAlert.style.display = 'none'; }, 3000); // 3 sn sonra kapat
+            }
+        });
 
-        // URL'den ID al
+        // 2. Kısayol Tuşlarını Engelle (Ctrl+P, Ctrl+S, Shift+S)
+        document.addEventListener('keydown', (e) => {
+            if (
+                (e.ctrlKey && e.key === 'p') || // Yazdır
+                (e.ctrlKey && e.key === 's') || // Kaydet
+                (e.metaKey && e.shiftKey && e.key === '3') || // Mac SS
+                (e.metaKey && e.shiftKey && e.key === '4')
+            ) {
+                e.preventDefault();
+                alert("Bu döküman korumalıdır. Kaydetme ve yazdırma yapılamaz.");
+            }
+        });
+
+        // 3. Pencere Odak Kaybı (Kullanıcı başka programa geçerse - örn: Snipping Tool)
+        // Bu özellik çok agresif olabilir, kullanıcı deneyimini bozabilir. 
+        // İstersen aşağıdaki yorumu kaldırıp aktif edebilirsin:
+        /*
+        window.addEventListener('blur', () => {
+             pdfContainer.style.filter = 'blur(20px)'; // İçeriği bulanıklaştır
+        });
+        window.addEventListener('focus', () => {
+             pdfContainer.style.filter = 'blur(0px)'; // Geri düzelt
+        });
+        */
+
+
+        // --- PDF GÖRÜNTÜLEYİCİ ---
+
         const urlParams = new URLSearchParams(window.location.search);
         const noteId = urlParams.get('id');
 
         if (!noteId) {
-            log("HATA: URL'de not ID'si bulunamadı!", "error");
+            alert("Hatalı link.");
+            window.close();
         }
 
         async function startViewer() {
             try {
-                // ADIM 1: KULLANICI KONTROLÜ
-                log("1. Kullanıcı oturumu kontrol ediliyor...");
+                // 1. Kullanıcıyı Al
                 const { data: { user } } = await supabase.auth.getUser();
-                if (!user) throw new Error("Giriş yapmamışsınız.");
-                log("Kullanıcı doğrulandı: " + user.email, "success");
+                if (!user) { alert("Giriş yapmalısınız."); window.close(); return; }
 
-                // ADIM 2: NOT BİLGİSİ ÇEKME
-                log("2. Not bilgileri veritabanından çekiliyor...");
-                const { data: note, error: noteError } = await supabase
-                    .from('notes')
-                    .select('*')
-                    .eq('id', noteId)
+                // 2. İSİM SOYİSİM ÇEK (YENİ ÖZELLİK)
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', user.id)
                     .single();
-
-                if (noteError) throw new Error("Not bilgisi alınamadı: " + noteError.message);
-                if (!note) throw new Error("Not bulunamadı.");
                 
+                // Eğer isim yoksa E-posta kullan, varsa İsmi kullan
+                const displayName = profile?.full_name ? profile.full_name : user.email;
+
+                // 3. Not Bilgisi
+                const { data: note, error } = await supabase.from('notes').select('*').eq('id', noteId).single();
+                if (error || !note) throw new Error("Not bulunamadı.");
+
                 docTitle.innerText = note.lesson_name;
-                log("Not bulundu: " + note.lesson_name, "success");
 
-                // ADIM 3: YETKİ KONTROLÜ
-                log("3. Satın alma kontrolü yapılıyor...");
-                let hasAccess = (note.author_id === user.id); // Sahibi mi?
-                
+                // 4. Yetki Kontrolü
+                let hasAccess = (note.author_id === user.id);
                 if (!hasAccess) {
-                    const { data: tx } = await supabase
-                        .from('transactions')
-                        .select('*')
-                        .eq('buyer_id', user.id)
-                        .eq('note_id', noteId)
-                        .single();
+                    const { data: tx } = await supabase.from('transactions').select('*').eq('buyer_id', user.id).eq('note_id', noteId).single();
                     if (tx) hasAccess = true;
                 }
+                if (!hasAccess) { alert("Yetkisiz erişim."); window.close(); return; }
 
-                if (!hasAccess) throw new Error("Bu notu görüntüleme yetkiniz yok. Satın almalısınız.");
-                log("Erişim izni onaylandı.", "success");
-
-                // ADIM 4: DOSYA İNDİRME (En Kritik Yer)
-                log("4. PDF dosyası indiriliyor...", "info");
-                
-                // URL'den dosya yolunu temizle
-                // Örnek: .../notlar/17565_dosya.pdf -> 17565_dosya.pdf
+                // 5. Dosyayı İndir
                 const publicUrl = note.file_url;
                 const pathParts = publicUrl.split('/notlar/');
-                if (pathParts.length < 2) throw new Error("Dosya yolu hatalı: " + publicUrl);
-                
-                const filePath = pathParts[1]; 
-                log("Dosya yolu: " + filePath, "info");
+                const filePath = pathParts[1];
 
-                const { data: blob, error: downloadError } = await supabase.storage
-                    .from('notlar')
-                    .download(filePath);
+                const { data: blob, error: dlError } = await supabase.storage.from('notlar').download(filePath);
+                if (dlError) throw dlError;
 
-                if (downloadError) {
-                    log("İndirme Hatası Detayı: " + JSON.stringify(downloadError), "error");
-                    throw new Error("Dosya indirilemedi (Storage Hatası). İpucu: Storage Bucket public mi?");
-                }
-                
-                log("Dosya başarıyla indirildi. Boyut: " + blob.size, "success");
-
-                // ADIM 5: PDF'İ ÇİZME
-                log("5. PDF ekrana çiziliyor...", "info");
                 const buffer = await blob.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument(buffer).promise;
-                
-                log("PDF Sayfa Sayısı: " + pdf.numPages, "success");
-                logConsole.style.display = 'none'; // Her şey yolundaysa logu gizle
 
-                // Filigran Metni
-                const watermarkText = user.email;
-
+                // 6. Çiz ve Filigran Ekle
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const viewport = page.getViewport({ scale: 1.5 });
                     
                     const canvas = document.createElement('canvas');
-                    canvas.className = 'pdf-page';
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
                     const ctx = canvas.getContext('2d');
-                    
                     pdfContainer.appendChild(canvas);
                     
                     await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-                    // Filigran Ekle
+                    // --- YENİ FİLİGRAN AYARLARI ---
                     ctx.save();
-                    ctx.globalAlpha = 0.2;
-                    ctx.font = "30px Arial";
-                    ctx.fillStyle = "red";
+                    ctx.globalAlpha = 0.15; // Şeffaflık ayarı
+                    
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    // Tuvalin ortasına git ve çapraz çevir
                     ctx.translate(canvas.width/2, canvas.height/2);
                     ctx.rotate(-45 * Math.PI / 180);
-                    ctx.fillText(watermarkText, 0, 0);
+
+                    // 1. SATIR: SİTE ADI (Büyük)
+                    ctx.font = "bold 80px Arial"; 
+                    ctx.fillStyle = "red";
+                    ctx.fillText("UniNot.com", 0, -30); 
+                    
+                    // 2. SATIR: KULLANICI ADI (Güvenlik için gerekli, daha küçük)
+                    ctx.font = "bold 30px Arial";
+                    ctx.fillStyle = "#333";
+                    ctx.fillText(displayName, 0, 40);
+
                     ctx.restore();
                 }
 
             } catch (err) {
-                log("KRİTİK HATA: " + err.message, "error");
-                // Hata varsa log ekranını gizleme, kullanıcı görsün
+                console.error(err);
+                alert("Hata oluştu: " + err.message);
             }
         }
 
