@@ -46,7 +46,7 @@
                         <span class="fake-btn">Dosya Seç</span>
                         <span class="file-msg">veya sürükleyip buraya bırak (Sadece PDF)</span>
                         
-                        <input class="file-input" id="fileInput" type="file" accept="application/pdf" required>
+                        <input class="file-input" id="fileInput" type="file" accept=".pdf, .docx, .doc, .xlsx, .xls, .pptx, .ppt" required>
                         
                         <div class="icon-bg"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                     </div>
@@ -293,14 +293,16 @@
         let currentUser = null;
 
         // DOSYA SEÇİMİNDE PDF KONTROLÜ (GÜVENLİK)
-        fileInput.addEventListener('change', () => {
+       fileInput.addEventListener('change', () => {
             if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
+                const ext = file.name.split('.').pop().toLowerCase();
+                const allowedExts = ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'];
                 
-                // GÜVENLİK: Sadece PDF mi?
-                if (file.type !== 'application/pdf') {
-                    alert("Lütfen sadece PDF dosyası yükleyiniz! (.docx, .jpg vb. desteklenmez)");
-                    fileInput.value = ""; // Seçimi sıfırla
+                // İzin verilen uzantı mı?
+                if (!allowedExts.includes(ext)) {
+                    alert("Lütfen geçerli bir ders notu yükleyiniz! (PDF, Word, Excel veya Sunum)");
+                    fileInput.value = ""; 
                     fileMsg.textContent = "Hatalı dosya formatı!";
                     return;
                 }

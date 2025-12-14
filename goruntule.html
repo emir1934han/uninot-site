@@ -107,76 +107,34 @@
         const docTitle = document.getElementById('docTitle');
         const securityAlert = document.getElementById('securityAlert');
 
-        // --- GÜVENLİK ÖNLEMLERİ (ANTI-SS) ---
-        
-        // 1. PrintScreen Tuşuna Basılırsa
+        // --- GÜVENLİK (Anti-SS) ---
         document.addEventListener('keyup', (e) => {
             if (e.key === 'PrintScreen') {
-                navigator.clipboard.writeText(''); // Panoyu temizle (Kopyalananı sil)
-                securityAlert.style.display = 'flex'; // Siyah ekranı aç
-                setTimeout(() => { securityAlert.style.display = 'none'; }, 3000); // 3 sn sonra kapat
+                navigator.clipboard.writeText('');
+                securityAlert.style.display = 'flex';
+                setTimeout(() => { securityAlert.style.display = 'none'; }, 3000);
             }
         });
-
-        // 2. Kısayol Tuşlarını Engelle (Ctrl+P, Ctrl+S, Shift+S)
-        document.addEventListener('keydown', (e) => {
-            if (
-                (e.ctrlKey && e.key === 'p') || // Yazdır
-                (e.ctrlKey && e.key === 's') || // Kaydet
-                (e.metaKey && e.shiftKey && e.key === '3') || // Mac SS
-                (e.metaKey && e.shiftKey && e.key === '4')
-            ) {
-                e.preventDefault();
-                alert("Bu döküman korumalıdır. Kaydetme ve yazdırma yapılamaz.");
-            }
-        });
-
-        // 3. Pencere Odak Kaybı (Kullanıcı başka programa geçerse - örn: Snipping Tool)
-        // Bu özellik çok agresif olabilir, kullanıcı deneyimini bozabilir. 
-        // İstersen aşağıdaki yorumu kaldırıp aktif edebilirsin:
-        /*
-        window.addEventListener('blur', () => {
-             pdfContainer.style.filter = 'blur(20px)'; // İçeriği bulanıklaştır
-        });
-        window.addEventListener('focus', () => {
-             pdfContainer.style.filter = 'blur(0px)'; // Geri düzelt
-        });
-        */
-
-
-        // --- PDF GÖRÜNTÜLEYİCİ ---
-
+        
+        // URL Parametreleri
         const urlParams = new URLSearchParams(window.location.search);
         const noteId = urlParams.get('id');
 
-        if (!noteId) {
-            alert("Hatalı link.");
-            window.close();
-        }
+        if (!noteId) { alert("Hatalı link."); window.close(); }
 
         async function startViewer() {
             try {
-                // 1. Kullanıcıyı Al
+                // 1. Kullanıcı ve Yetki Kontrolü
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) { alert("Giriş yapmalısınız."); window.close(); return; }
 
-                // 2. İSİM SOYİSİM ÇEK (YENİ ÖZELLİK)
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('full_name')
-                    .eq('id', user.id)
-                    .single();
-                
-                // Eğer isim yoksa E-posta kullan, varsa İsmi kullan
-                const displayName = profile?.full_name ? profile.full_name : user.email;
-
-                // 3. Not Bilgisi
+                // Not Verisini Çekme
                 const { data: note, error } = await supabase.from('notes').select('*').eq('id', noteId).single();
                 if (error || !note) throw new Error("Not bulunamadı.");
 
                 docTitle.innerText = note.lesson_name;
 
-                // 4. Yetki Kontrolü
+                // Satın Alma Kontrolü
                 let hasAccess = (note.author_id === user.id);
                 if (!hasAccess) {
                     const { data: tx } = await supabase.from('transactions').select('*').eq('buyer_id', user.id).eq('note_id', noteId).single();
@@ -184,55 +142,76 @@
                 }
                 if (!hasAccess) { alert("Yetkisiz erişim."); window.close(); return; }
 
-                // 5. Dosyayı İndir
+                // 2. DOSYA TÜRÜNE GÖRE İŞLEM
                 const publicUrl = note.file_url;
-                const pathParts = publicUrl.split('/notlar/');
-                const filePath = pathParts[1];
+                const extension = publicUrl.split('.').pop().toLowerCase();
 
-                const { data: blob, error: dlError } = await supabase.storage.from('notlar').download(filePath);
-                if (dlError) throw dlError;
+                // === EĞER PDF İSE (BİZİM GÜVENLİ SİSTEM) ===
+                if (extension === 'pdf') {
+                    const pathParts = publicUrl.split('/notlar/');
+                    const filePath = pathParts[1];
 
-                const buffer = await blob.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(buffer).promise;
+                    const { data: blob, error: dlError } = await supabase.storage.from('notlar').download(filePath);
+                    if (dlError) throw dlError;
 
-                // 6. Çiz ve Filigran Ekle
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const viewport = page.getViewport({ scale: 1.5 });
+                    const buffer = await blob.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(buffer).promise;
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const viewport = page.getViewport({ scale: 1.5 });
+                        
+                        const canvas = document.createElement('canvas');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        const ctx = canvas.getContext('2d');
+                        pdfContainer.appendChild(canvas);
+                        
+                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                        // FİLİGRAN
+                        ctx.save();
+                        ctx.globalAlpha = 0.15;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.translate(canvas.width/2, canvas.height/2);
+                        ctx.rotate(-45 * Math.PI / 180);
+                        ctx.font = "bold 80px Arial"; 
+                        ctx.fillStyle = "red";
+                        ctx.fillText("UniNot.com", 0, -30); 
+                        ctx.font = "bold 30px Arial";
+                        ctx.fillStyle = "#333";
+                        ctx.fillText(displayName, 0, 40);
+                        ctx.restore();
+                    }
+                } 
+                
+                // === EĞER OFFICE DOSYASI İSE (WORD, EXCEL, PPT) ===
+                else if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(extension)) {
+                    // Microsoft Viewer Kullan (iframe içinde)
+                    // Not: Bu yöntemde dinamik filigran basılamaz ama dosya görüntülenir.
+                    const encodedUrl = encodeURIComponent(publicUrl);
+                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
                     
-                    const canvas = document.createElement('canvas');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    const ctx = canvas.getContext('2d');
-                    pdfContainer.appendChild(canvas);
-                    
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-                    // --- YENİ FİLİGRAN AYARLARI ---
-                    ctx.save();
-                    ctx.globalAlpha = 0.15; // Şeffaflık ayarı
-                    
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-
-                    // Tuvalin ortasına git ve çapraz çevir
-                    ctx.translate(canvas.width/2, canvas.height/2);
-                    ctx.rotate(-45 * Math.PI / 180);
-
-                    // 1. SATIR: SİTE ADI (Büyük)
-                    ctx.font = "bold 80px Arial"; 
-                    ctx.fillStyle = "red";
-                    ctx.fillText("UniNot.com", 0, -30); 
-                    
-                    // 2. SATIR: KULLANICI ADI (Güvenlik için gerekli, daha küçük)
-                 
-
-                    ctx.restore();
+                    pdfContainer.innerHTML = `
+                        <div style="width:100%; height:800px; background:white; padding:10px; border-radius:10px;">
+                             <iframe src="${viewerUrl}" width="100%" height="100%" frameborder="0">
+                                Bu tarayıcı bu dosyayı görüntüleyemiyor.
+                             </iframe>
+                             <p style="text-align:center; color:#666; margin-top:10px; font-size:0.9rem;">
+                                Not: Word/Excel dosyalarında filigran desteği sınırlıdır.
+                             </p>
+                        </div>
+                    `;
+                } 
+                
+                else {
+                    alert("Desteklenmeyen dosya formatı.");
                 }
 
             } catch (err) {
                 console.error(err);
-                alert("Hata oluştu: " + err.message);
+                alert("Hata: " + err.message);
             }
         }
 
