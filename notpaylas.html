@@ -292,17 +292,18 @@
         const authBtn = document.getElementById('authBtn');
         let currentUser = null;
 
-        // DOSYA SEÇİMİNDE PDF KONTROLÜ (GÜVENLİK)
-       fileInput.addEventListener('change', () => {
+     // DOSYA SEÇİMİ KONTROLÜ (GÜNCELLENDİ: Çoklu Format)
+        fileInput.addEventListener('change', () => {
             if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
+                // Dosya uzantısını al (pdf, docx, xlsx vb.)
                 const ext = file.name.split('.').pop().toLowerCase();
                 const allowedExts = ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'];
                 
                 // İzin verilen uzantı mı?
                 if (!allowedExts.includes(ext)) {
                     alert("Lütfen geçerli bir ders notu yükleyiniz! (PDF, Word, Excel veya Sunum)");
-                    fileInput.value = ""; 
+                    fileInput.value = ""; // Seçimi iptal et
                     fileMsg.textContent = "Hatalı dosya formatı!";
                     return;
                 }
