@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,24 +8,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
-    
+
     <style>
         .note-preview-card {
             background: white;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: 0.3s;
-            text-align: left; /* Not detayları sola yaslı daha iyi durur */
+            text-align: left;
+            /* Not detayları sola yaslı daha iyi durur */
             border: 1px solid #f1f5f9;
         }
-        .note-preview-card:hover { transform: translateY(-5px); }
-        .note-meta {
-            display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.9rem; color: #64748b;
+
+        .note-preview-card:hover {
+            transform: translateY(-5px);
         }
-        .note-price { font-weight: 700; color: #4f46e5; font-size: 1.1rem; }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .note-price {
+            font-weight: 700;
+            color: #4f46e5;
+            font-size: 1.1rem;
+        }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -49,10 +66,12 @@
         <div class="container hero-content">
             <span class="badge">🚀 Öğrenciler için Gelir Kapısı</span>
             <h1>Ders Notlarını <br> <span class="highlight">Kazanca Dönüştür</span></h1>
-            <p>Üniversite notların tozlu raflarda kalmasın. İhtiyacı olanlara sat, kredi kazan veya eksik ders notlarını anında tamamla.</p>
+            <p>Üniversite notların tozlu raflarda kalmasın. İhtiyacı olanlara sat, kredi kazan veya eksik ders notlarını
+                anında tamamla.</p>
             <div class="hero-buttons">
                 <a href="not-al.html" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Not Ara</a>
-                <a href="notpaylas.html" class="btn btn-secondary"><i class="fa-solid fa-cloud-arrow-up"></i> Not Yükle</a>
+                <a href="notpaylas.html" class="btn btn-secondary"><i class="fa-solid fa-cloud-arrow-up"></i> Not
+                    Yükle</a>
             </div>
         </div>
     </header>
@@ -60,13 +79,16 @@
     <section class="stats">
         <div class="container stats-grid">
             <div class="stat-item">
-                <h3 id="statNotes">...</h3> <p>Paylaşılan Not</p>
+                <h3 id="statNotes">...</h3>
+                <p>Paylaşılan Not</p>
             </div>
             <div class="stat-item">
-                <h3 id="statUnis">...</h3> <p>Üniversite</p>
+                <h3 id="statUnis">...</h3>
+                <p>Üniversite</p>
             </div>
             <div class="stat-item">
-                <h3 id="statEarnings">...</h3> <p>Öğrenci Kazancı</p>
+                <h3 id="statEarnings">...</h3>
+                <p>Öğrenci Kazancı</p>
             </div>
         </div>
     </section>
@@ -80,9 +102,10 @@
             <div class="features-grid" id="showcaseGrid">
                 <p style="text-align:center; grid-column:1/-1;">Notlar yükleniyor...</p>
             </div>
-            
+
             <div style="text-align:center; margin-top:40px;">
-                <a href="not-al.html" class="btn btn-secondary" style="background:transparent; color:#4f46e5; border:1px solid #4f46e5;">Tümünü Gör</a>
+                <a href="not-al.html" class="btn btn-secondary"
+                    style="background:transparent; color:#4f46e5; border:1px solid #4f46e5;">Tümünü Gör</a>
             </div>
         </div>
     </section>
@@ -141,9 +164,9 @@
             <div class="footer-menu">
                 <h3>Kurumsal</h3>
                 <ul>
-                    <li><a href="#">Hakkımızda</a></li>
-                    <li><a href="#">İletişim</a></li>
-                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="hakkımızda.html">Hakkımızda</a></li>
+                    <li><a href="iletisim.html">İletişim</a></li>
+                    <li><a href="gizlilik.html">Gizlilik Politikası</a></li>
                 </ul>
             </div>
         </div>
@@ -156,13 +179,13 @@
 
     <script type="module">
         import { supabase } from './supabase.js';
-        
+
         const authBtn = document.getElementById('navAuthBtn');
         const statNotes = document.getElementById('statNotes');
         const statUnis = document.getElementById('statUnis');
         const statEarnings = document.getElementById('statEarnings');
         const showcaseGrid = document.getElementById('showcaseGrid');
-        
+
         // 1. GİRİŞ KONTROLÜ (Navbar)
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
@@ -182,7 +205,7 @@
                 const { count: notesCount } = await supabase
                     .from('notes')
                     .select('*', { count: 'exact', head: true });
-                
+
                 statNotes.innerText = (notesCount || 0) + "+";
 
                 // Üniversite Sayısı (Benzersizleri saymak için)
@@ -193,13 +216,13 @@
                 // Kazanç Hesaplama (Satış Sayısı * Fiyat)
                 // Basitlik olsun diye şimdilik toplam indirme sayısını baz alalım veya sales_count toplayalım
                 const { data: salesData } = await supabase.from('notes').select('sales_count, price');
-                
+
                 let totalMoney = 0;
-                if(salesData) {
+                if (salesData) {
                     // Toplam Kazanç = (Fiyat * Satış Adedi) toplamı
                     totalMoney = salesData.reduce((acc, curr) => acc + (curr.price * (curr.sales_count || 0)), 0);
                 }
-                
+
                 // Sayıyı formatla (örn: 1.200 ₺)
                 statEarnings.innerText = "₺" + totalMoney.toLocaleString('tr-TR');
 
@@ -231,10 +254,10 @@
 
             // HTML Oluştur (Senin Feature Card tasarımına benzer ama not için özelleştirilmiş)
             showcaseGrid.innerHTML = "";
-            
+
             notes.forEach(note => {
                 let authorName = "Anonim";
-                if(note.profiles && note.profiles.full_name) authorName = note.profiles.full_name;
+                if (note.profiles && note.profiles.full_name) authorName = note.profiles.full_name;
 
                 const cardHTML = `
                 <div class="note-preview-card">
@@ -260,4 +283,5 @@
 
     </script>
 </body>
+
 </html>
