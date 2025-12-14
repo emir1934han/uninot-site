@@ -402,6 +402,7 @@
         }
 
         // --- SATIN ALMA / İNDİRME ---
+        // --- SATIN ALMA / GÖRÜNTÜLEME ---
         window.handleNoteAction = async function(noteId, fileUrl, isOwner, isPurchased) {
             if (!currentUser) {
                 if(confirm("İşlem yapmak için giriş yapmalısınız. Giriş sayfasına gidilsin mi?")) 
@@ -409,8 +410,10 @@
                 return;
             }
 
+            // Eğer zaten satın alındıysa veya benimse -> GÖRÜNTÜLEME SAYFASINA GİT
             if (isOwner || isPurchased) {
-                window.open(fileUrl, '_blank');
+                // Direkt indirmek yerine goruntule.html sayfasına ID ile yolluyoruz
+                window.location.href = `goruntule.html?id=${noteId}`;
                 return;
             }
 
@@ -430,8 +433,10 @@
                 if (data.success) {
                     alert(data.message);
                     myPurchasedNoteIds.push(noteId);
-                    window.open(data.download_url, '_blank');
-                    applyFilters();
+                    
+                    // Satın alma bitince de görüntüleme sayfasına yolluyoruz
+                    window.location.href = `goruntule.html?id=${noteId}`;
+                    
                 } else {
                     alert("Hata: " + data.message);
                 }
@@ -439,8 +444,9 @@
                 alert("Hata: " + err.message);
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
+                applyFilters(); // Buton rengi yeşile dönsün diye yenile
             }
-        }
+        }   
     </script>
 </body>
 </html>
