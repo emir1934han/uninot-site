@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İletişim | UniNot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Anasayfa.css">
+    <style>
+        .contact-section { padding: 60px 0; display: flex; justify-content: center; }
+        .contact-card {
+            background: white; width: 100%; max-width: 600px;
+            padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+        }
+        .contact-card h1 { text-align: center; color: #1e293b; margin-bottom: 10px; }
+        .contact-card p { text-align: center; color: #64748b; margin-bottom: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #475569; font-weight: 500; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1;
+            border-radius: 8px; font-family: inherit;
+        }
+        .btn-send {
+            width: 100%; padding: 15px; background: #4f46e5; color: white;
+            border: none; border-radius: 10px; font-weight: 600; cursor: pointer;
+            font-size: 1rem; transition: 0.3s;
+        }
+        .btn-send:hover { background: #4338ca; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo"><i class="fa-solid fa-graduation-cap"></i> UniNot</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Anasayfa</a></li>
+                <li><a href="not-al.html">Not Satın Al</a></li>
+                <li><a href="kredilerim.html">Kredilerim</a></li>
+                <li><a href="Kayit.html" class="btn-register" id="authBtn">Kayıt Ol</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="contact-section">
+        <div class="contact-card">
+            <h1>Bize Ulaşın 📩</h1>
+            <p>Sorularınız, önerileriniz veya şikayetleriniz için buradayız.</p>
+            
+            <form onsubmit="alert('Mesajınız alındı! En kısa sürede döneceğiz.'); return false;">
+                <div class="form-group">
+                    <label>Adınız Soyadınız</label>
+                    <input type="text" required placeholder="Örn: Emirhan Yılmaz">
+                </div>
+                <div class="form-group">
+                    <label>E-posta Adresiniz</label>
+                    <input type="email" required placeholder="ornek@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Mesajınız</label>
+                    <textarea rows="5" required placeholder="Size nasıl yardımcı olabiliriz?"></textarea>
+                </div>
+                <button type="submit" class="btn-send">Mesajı Gönder</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h2>UniNot</h2>
+                <p>Öğrencilerin dijital kütüphanesi.</p>
+            </div>
+            <div class="footer-menu">
+                <h3>Kurumsal</h3>
+                <ul>
+                    <li><a href="hakkimizda.html">Hakkımızda</a></li>
+                    <li><a href="iletisim.html">İletişim</a></li>
+                    <li><a href="gizlilik.html">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright"><p>&copy; 2025 UniNot.</p></div>
+    </footer>
+
+    <script type="module">
+        import { supabase } from './supabase.js';
+        async function checkUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            const btn = document.getElementById('authBtn');
+            if (user) { btn.innerText = "Hesabım"; btn.href = "kredilerim.html"; }
+        }
+        checkUser();
+    </script>
+</body>
+</html>
