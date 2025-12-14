@@ -21,7 +21,7 @@
             </div>
             <ul class="nav-links">
                 <li><a href="index.html">Anasayfa</a></li>
-                <li><a href="not-al.html" class="active-link">Not Satın al</a></li>
+                <li><a href="not-al.html">Not Satın Al</a></li>
                 <li><a href="kredilerim.html">Kredilerim</a></li>
                 <li><a href="kayit.html" class="btn-register" id="authBtn">Kayıt Ol</a></li>
             </ul>
@@ -44,8 +44,10 @@
 
                     <div class="file-drop-area">
                         <span class="fake-btn">Dosya Seç</span>
-                        <span class="file-msg">veya sürükleyip buraya bırak</span>
-                        <input class="file-input" id="fileInput" type="file" accept=".pdf,.doc,.docx" required>
+                        <span class="file-msg">veya sürükleyip buraya bırak (Sadece PDF)</span>
+                        
+                        <input class="file-input" id="fileInput" type="file" accept="application/pdf" required>
+                        
                         <div class="icon-bg"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                     </div>
 
@@ -113,7 +115,7 @@
                 <h3>Platform</h3>
                 <ul>
                     <li><a href="#">Nasıl Çalışır?</a></li>
-                    <li><a href="#">Not Ara</a></li>
+                    <li><a href="not-al.html">Not Ara</a></li>
                     <li><a href="#">Fiyatlandırma</a></li>
                 </ul>
             </div>
@@ -131,10 +133,10 @@
         </div>
     </footer>
 
-  <script type="module">
+    <script type="module">
         import { supabase } from './supabase.js';
 
-        // --- VERİ LİSTELERİ (Genişletilebilir) ---
+        // --- DEVASA LİSTELER (HEPSİ GERİ GELDİ) ---
         const universities = [
             "Abant İzzet Baysal Üniversitesi", "Abdullah Gül Üniversitesi", "Acıbadem Mehmet Ali Aydınlar Üniversitesi", 
             "Adana Alparslan Türkeş Bilim ve Teknoloji Üniversitesi", "Adıyaman Üniversitesi", "Afyon Kocatepe Üniversitesi", 
@@ -235,44 +237,35 @@
             "Zootekni"
         ];
 
-        // --- SIRALAMA (Türkçe A-Z) ---
+        // Sıralama
         universities.sort((a, b) => a.localeCompare(b, 'tr'));
         departments.sort((a, b) => a.localeCompare(b, 'tr'));
 
-        // --- FONKSİYONLAR ---
-
-        // Dropdown Kurulumu
+        // --- DROPDOWN FONKSİYONLARI ---
         function setupSearchDropdown(inputId, listId, dataArray) {
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
 
-            // 1. Yazarken Filtrele
             input.addEventListener('input', () => {
                 const val = input.value.toLocaleLowerCase('tr');
-                list.innerHTML = ''; // Listeyi temizle
+                list.innerHTML = '';
                 
                 if (!val) {
                     list.classList.remove('show');
                     return;
                 }
 
-                // Eşleşenleri Bul
-                const filtered = dataArray.filter(item => 
-                    item.toLocaleLowerCase('tr').includes(val)
-                );
+                const filtered = dataArray.filter(item => item.toLocaleLowerCase('tr').includes(val));
 
                 if (filtered.length > 0) {
                     filtered.forEach(item => {
                         const div = document.createElement('div');
                         div.className = 'dropdown-item';
                         div.textContent = item;
-                        
-                        // Tıklayınca Seç
                         div.addEventListener('click', () => {
                             input.value = item;
                             list.classList.remove('show');
                         });
-                        
                         list.appendChild(div);
                     });
                     list.classList.add('show');
@@ -281,10 +274,6 @@
                 }
             });
 
-            // 2. Tıklayınca Tüm Listeyi Göster (Opsiyonel, istersek açabiliriz)
-            // input.addEventListener('focus', () => { ... });
-
-            // 3. Dışarı Tıklayınca Kapat
             document.addEventListener('click', (e) => {
                 if (!input.contains(e.target) && !list.contains(e.target)) {
                     list.classList.remove('show');
@@ -292,12 +281,10 @@
             });
         }
 
-        // Dropdownları Başlat
         setupSearchDropdown('universityInput', 'universityList', universities);
         setupSearchDropdown('categoryInput', 'categoryList', departments);
 
-
-        // --- MEVCUT SUPABASE KODLARI (Güncellendi) ---
+        // --- ANA MANTIK ---
         const uploadForm = document.getElementById('uploadForm');
         const fileInput = document.getElementById('fileInput');
         const fileMsg = document.querySelector('.file-msg');
@@ -305,8 +292,21 @@
         const authBtn = document.getElementById('authBtn');
         let currentUser = null;
 
+        // DOSYA SEÇİMİNDE PDF KONTROLÜ (GÜVENLİK)
         fileInput.addEventListener('change', () => {
-            if(fileInput.files.length > 0) fileMsg.textContent = fileInput.files[0].name;
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // GÜVENLİK: Sadece PDF mi?
+                if (file.type !== 'application/pdf') {
+                    alert("Lütfen sadece PDF dosyası yükleyiniz! (.docx, .jpg vb. desteklenmez)");
+                    fileInput.value = ""; // Seçimi sıfırla
+                    fileMsg.textContent = "Hatalı dosya formatı!";
+                    return;
+                }
+                
+                fileMsg.textContent = file.name;
+            }
         });
 
         async function checkUser() {
@@ -316,32 +316,42 @@
                 authBtn.innerText = "Hesabım";
                 authBtn.href = "kredilerim.html"; 
             } else {
-                alert("Not paylaşmak için lütfen önce giriş yapın.");
-                window.location.href = "Kayit.html";
+                authBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = "Kayit.html";
+                });
             }
         }
         checkUser();
 
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
+            if (!currentUser) {
+                alert("Lütfen önce giriş yapın.");
+                window.location.href = "Kayit.html";
+                return;
+            }
 
-            // YENİ INPUTLARDAN DEĞERLERİ AL
             const uniValue = document.getElementById('universityInput').value;
             const catValue = document.getElementById('categoryInput').value;
+            const file = fileInput.files[0];
 
-            // Kontrol: Boş bırakılmasın
             if(!uniValue || !catValue) {
                 alert("Lütfen Üniversite ve Bölüm seçiniz.");
                 return;
             }
 
+            // Son kez PDF kontrolü
+            if (!file || file.type !== 'application/pdf') {
+                alert("Lütfen geçerli bir PDF dosyası seçin.");
+                return;
+            }
+
             // Buton kilitleme
             const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = 'Yükleniyor...';
+            submitBtn.innerHTML = 'Yükleniyor... <i class="fa-solid fa-spinner fa-spin"></i>';
             submitBtn.disabled = true;
 
-            const file = fileInput.files[0];
             const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
             const fileName = `${Date.now()}_${cleanName}`;
 
@@ -363,13 +373,14 @@
                     .from('notes')
                     .insert([{
                         lesson_name: document.getElementById('lessonName').value,
-                        category: catValue,   // Yeni inputtan gelen değer
-                        university: uniValue, // Yeni inputtan gelen değer
+                        category: catValue,
+                        university: uniValue,
                         price: document.getElementById('price').value,
                         description: document.getElementById('description').value,
                         file_url: publicUrl,
                         author_id: currentUser.id,
-                        author_email: currentUser.email
+                        author_email: currentUser.email,
+                        sales_count: 0 // Görüntüleme sayısı başlangıçta 0
                     }]);
 
                 if (dbError) throw dbError;

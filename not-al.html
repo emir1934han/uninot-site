@@ -102,7 +102,7 @@
     <header class="page-header">
         <div class="container">
             <h1>Aradığın Dersi Bul 📚</h1>
-            <p>Gerçek öğrenciler tarafından yüklenen notları keşfet.</p>
+            <p>Güvenli görüntüleme sistemi ile notları incele.</p>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Ders adı, hoca adı veya konu ara..." onkeyup="applyFilters()">
@@ -135,7 +135,7 @@
                     <h3>Sıralama</h3>
                     <ul>
                         <li><input type="radio" name="sort" value="newest" checked onchange="applyFilters()"> <label>En Yeniler</label></li>
-                        <li><input type="radio" name="sort" value="popular" onchange="applyFilters()"> <label>En Çok İndirilenler</label></li>
+                        <li><input type="radio" name="sort" value="popular" onchange="applyFilters()"> <label>En Çok Okunanlar</label></li>
                         <li><input type="radio" name="sort" value="cheap" onchange="applyFilters()"> <label>Fiyata Göre (Artan)</label></li>
                     </ul>
                 </div>
@@ -161,7 +161,7 @@
 
     <script src="script.js"></script>
 
-   <script type="module">
+    <script type="module">
         import { supabase } from './supabase.js';
 
         // --- VERİ LİSTELERİ ---
@@ -262,11 +262,9 @@
             const deptVal = document.getElementById('deptFilterInput').value;
             const sortVal = document.querySelector('input[name="sort"]:checked').value;
 
-            // Notları Çekme Sorgusu
-            // NOT: Eğer profil çekme hata verirse, sadece notları çekip hatayı yok saymayı deneyebiliriz.
             let query = supabase
                 .from('notes')
-                .select('*, profiles(full_name)'); // Basit ilişki yapısı
+                .select('*, profiles(full_name)'); // İlişki üzerinden yazar ismi
 
             if (searchVal) query = query.ilike('lesson_name', `%${searchVal}%`);
             if (uniVal) query = query.ilike('university', `%${uniVal}%`);
@@ -278,18 +276,17 @@
 
             const { data: notes, error } = await query;
 
-            // HATA YAKALAMA (Ekrana Yazdırma)
+            // HATA YAKALAMA (Kırmızı Kutu)
             if (error) {
                 console.error("Supabase Hatası:", error);
                 
-                // Eğer hata "İlişki bulunamadı" ise kullanıcıya özel mesaj göster
                 let errorMsg = error.message;
                 let hint = "";
                 
                 if(error.code === "PGRST200") {
-                    hint = "İpucu: Veritabanında 'notes' ve 'profiles' tabloları arasındaki ilişki kurulamamış. SQL Editor'den ilişki kodunu tekrar çalıştırın.";
+                    hint = "İpucu: Veritabanında 'notes' ve 'profiles' tabloları arasındaki ilişki kurulamamış. SQL Editor'den ilişki kodunu çalıştırın.";
                 } else if (error.code === "42501") {
-                    hint = "İpucu: Profil tablosunu okuma izniniz yok. RLS (Security) ayarlarından 'Herkes profilleri görebilir' iznini açın.";
+                    hint = "İpucu: Profil tablosunu okuma izniniz yok. RLS ayarlarından 'Herkes profilleri görebilir' iznini açın.";
                 }
 
                 notesContainer.innerHTML = `
@@ -321,7 +318,7 @@
                 const isOwner = currentUser && (note.author_id === currentUser.id);
                 const isPurchased = myPurchasedNoteIds.includes(note.id);
                 
-                // Yazar İsmi Kontrolü
+                // Yazar İsmi
                 let authorName = "Anonim";
                 if (note.profiles && note.profiles.full_name) {
                     authorName = note.profiles.full_name;
@@ -329,17 +326,24 @@
                     authorName = note.author_email.split('@')[0];
                 }
 
-                // Açıklama Kısaltma
+                // Açıklama
                 const fullDesc = note.description || "Açıklama girilmemiş.";
                 const shortDesc = fullDesc.length > 80 ? fullDesc.substring(0, 80) + "..." : fullDesc;
                 const hasMore = fullDesc.length > 80;
 
-                // Buton Metni
+                // Buton Metni (İNDİR KELİMESİ KALKTI -> OKU/İNCELE GELDİ)
                 let btnText = `Satın Al (${note.price}₺)`;
                 let btnStyle = "";
-                if (isOwner) { btnText = "Senin Notun (Görüntüle)"; btnStyle = "background:#64748b;"; }
-                else if (isPurchased) { btnText = "Satın Alındı (Görüntüle)"; btnStyle = "background:#16a34a;"; }
-                else if (note.price == 0) { btnText = "Ücretsiz Görüntüle"; }
+                
+                if (isOwner) { 
+                    btnText = "Notunu Oku"; 
+                    btnStyle = "background:#64748b;"; 
+                } else if (isPurchased) { 
+                    btnText = "Notu Oku (Satın Alındı)"; 
+                    btnStyle = "background:#16a34a;"; 
+                } else if (note.price == 0) { 
+                    btnText = "Ücretsiz Oku"; 
+                }
 
                 const cardHTML = `
                 <div class="note-card">
@@ -356,7 +360,7 @@
                         </div>
                         
                         <div class="rating">
-                            <i class="fa-solid fa-eye"></i> ${note.sales_count || 0} Görüntülenme
+                            <i class="fa-solid fa-eye"></i> ${note.sales_count || 0} Okunma
                         </div>
                         
                         <div class="desc-container">
@@ -376,7 +380,6 @@
             });
         }
 
-        // Açıklama Aç/Kapa
         window.toggleDesc = function(id) {
             const shortSpan = document.getElementById(`short-${id}`);
             const fullSpan = document.getElementById(`full-${id}`);
@@ -393,7 +396,14 @@
             }
         }
 
-        // --- SATIN ALMA / GÖRÜNTÜLEME İŞLEMİ ---
+        window.clearFilters = function() {
+            document.getElementById('searchInput').value = "";
+            document.getElementById('uniFilterInput').value = "";
+            document.getElementById('deptFilterInput').value = "";
+            applyFilters();
+        }
+
+        // --- GÖRÜNTÜLEME İŞLEMİ (YENİ SEKME ADAPTASYONU) ---
         window.handleNoteAction = async function(noteId, fileUrl, isOwner, isPurchased) {
             if (!currentUser) {
                 if(confirm("İşlem yapmak için giriş yapmalısınız. Kayıt sayfasına gidilsin mi?")) 
@@ -401,9 +411,9 @@
                 return;
             }
 
-            // Zaten alınmışsa -> goruntule.html sayfasına git
+            // Eğer satın alınmışsa -> YENİ SEKMEDE AÇ
             if (isOwner || isPurchased) {
-                window.location.href = `goruntule.html?id=${noteId}`;
+                window.open(`goruntule.html?id=${noteId}`, '_blank');
                 return;
             }
 
@@ -424,8 +434,14 @@
                 if (data.success) {
                     alert(data.message);
                     myPurchasedNoteIds.push(noteId);
-                    // Başarılı olunca görüntüleme sayfasına gönder
-                    window.location.href = `goruntule.html?id=${noteId}`;
+                    
+                    // Başarılı olunca butonu güncelle (Yeşil yap)
+                    btn.innerText = "Notu Oku (Satın Alındı)";
+                    btn.style.backgroundColor = "#16a34a";
+                    
+                    // Ve notu YENİ SEKMEDE aç
+                    window.open(`goruntule.html?id=${noteId}`, '_blank');
+                    
                 } else {
                     alert("Hata: " + data.message);
                     btn.innerText = originalText; 
