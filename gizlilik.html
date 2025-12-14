@@ -7,12 +7,93 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+    
     <style>
-        .page-content { padding: 60px 0; }
-        .policy-text { max-width: 800px; margin: 0 auto; line-height: 1.6; color: #334155; }
-        .policy-text h1 { margin-bottom: 30px; color: #1e293b; font-size: 2rem; }
-        .policy-text h3 { margin-top: 30px; margin-bottom: 10px; color: #1e293b; }
-        .policy-text p { margin-bottom: 15px; }
+        /* Modern Gizlilik Politikası Stilleri */
+
+        /* 1. Hero Alanı */
+        .privacy-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: white;
+            padding: 80px 20px 120px; /* İçerik kutusu üzerine bineceği için alttan fazla boşluk */
+            text-align: center;
+            border-radius: 0 0 50% 50% / 20px;
+        }
+        .privacy-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .privacy-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* 2. İçerik Konteyneri */
+        .privacy-container {
+            max-width: 900px;
+            margin: -80px auto 60px; /* Hero'nun üzerine bindirme */
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 3. Beyaz Politika Kutusu */
+        .privacy-box {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        /* 4. Politika Maddeleri */
+        .policy-item {
+            margin-bottom: 35px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 25px;
+        }
+        .policy-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .policy-item h3 {
+            font-size: 1.4rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .policy-item h3 i {
+            color: #4f46e5;
+            font-size: 1.2rem;
+        }
+
+        .policy-text p {
+            line-height: 1.8;
+            color: #475569;
+            font-size: 1.05rem;
+        }
+
+        /* Mobil Uyum */
+        @media (max-width: 768px) {
+            .privacy-hero h1 { font-size: 2.2rem; }
+            .privacy-box { padding: 30px 20px; }
+            .privacy-container { margin-top: -60px; }
+        }
     </style>
 </head>
 <body>
@@ -29,22 +110,40 @@
         </div>
     </nav>
 
-    <section class="page-content">
-        <div class="container policy-text">
+    <header class="privacy-hero">
+        <div class="container">
             <h1>Gizlilik Politikası</h1>
-            <p>Son Güncelleme: 14 Aralık 2025</p>
+            <p>Verilerinizin güvenliği bizim için önemlidir. UniNot platformunu kullanırken verilerinizin nasıl işlendiğini şeffaflıkla paylaşıyoruz.</p>
+        </div>
+    </header>
 
-            <h3>1. Veri Toplama</h3>
-            <p>UniNot olarak, sitemize kayıt olurken sağladığınız isim, e-posta adresi ve üniversite bilgileri gibi kişisel verileri, hizmet kalitemizi artırmak amacıyla topluyoruz.</p>
+    <section class="privacy-container">
+        <div class="privacy-box">
+            <p class="last-updated"><i class="fa-regular fa-clock"></i> Son Güncelleme: 14 Aralık 2025</p>
 
-            <h3>2. Verilerin Kullanımı</h3>
-            <p>Toplanan veriler, sadece kullanıcı deneyimini iyileştirmek, ödeme işlemlerini doğrulamak ve platform güvenliğini sağlamak amacıyla kullanılır. Üçüncü taraflarla izniniz olmadan paylaşılmaz.</p>
+            <div class="policy-text">
+                
+                <div class="policy-item">
+                    <h3><i class="fa-solid fa-database"></i> 1. Veri Toplama</h3>
+                    <p>UniNot olarak, sitemize kayıt olurken sağladığınız isim, e-posta adresi ve üniversite bilgileri gibi kişisel verileri, hizmet kalitemizi artırmak ve size daha kişiselleştirilmiş bir deneyim sunmak amacıyla topluyoruz.</p>
+                </div>
 
-            <h3>3. Çerezler (Cookies)</h3>
-            <p>Sitemiz, oturum bilgilerinizi hatırlamak ve tercihlerinizi kaydetmek için çerez teknolojisini kullanmaktadır.</p>
+                <div class="policy-item">
+                    <h3><i class="fa-solid fa-server"></i> 2. Verilerin Kullanımı</h3>
+                    <p>Toplanan veriler, sadece kullanıcı deneyimini iyileştirmek, ödeme işlemlerini doğrulamak, not paylaşım süreçlerini yönetmek ve platform güvenliğini sağlamak amacıyla kullanılır. Yasal zorunluluklar haricinde, üçüncü taraflarla izniniz olmadan asla paylaşılmaz.</p>
+                </div>
 
-            <h3>4. Güvenlik</h3>
-            <p>Kullanıcı verileriniz, güncel şifreleme teknolojileri ve Supabase altyapısı ile korunmaktadır.</p>
+                <div class="policy-item">
+                    <h3><i class="fa-solid fa-cookie-bite"></i> 3. Çerezler (Cookies)</h3>
+                    <p>Sitemiz, oturum bilgilerinizi hatırlamak, tercihlerinizi kaydetmek ve site trafiğini analiz etmek için çerez teknolojisini kullanmaktadır. Tarayıcı ayarlarınızdan çerez kullanımını yönetebilirsiniz, ancak bu durum sitenin bazı işlevlerini etkileyebilir.</p>
+                </div>
+
+                <div class="policy-item">
+                    <h3><i class="fa-solid fa-shield-halved"></i> 4. Güvenlik</h3>
+                    <p>Kullanıcı verileriniz, endüstri standardı güncel şifreleme teknolojileri (SSL) ve güvenilir Supabase altyapısı ile korunmaktadır. Veri güvenliğiniz için sistemlerimizi sürekli olarak güncelliyor ve denetliyoruz.</p>
+                </div>
+
+            </div>
         </div>
     </section>
 

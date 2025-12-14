@@ -7,28 +7,145 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Anasayfa.css">
+    
     <style>
-        .contact-section { padding: 60px 0; display: flex; justify-content: center; }
-        .contact-card {
-            background: white; width: 100%; max-width: 600px;
-            padding: 40px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+        /* İletişim Sayfası Modern Stiller */
+
+        /* 1. Hero Alanı */
+        .contact-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: white;
+            padding: 80px 20px 100px; /* Alttan ekstra boşluk verip formu içine çekeceğiz */
+            text-align: center;
+            border-radius: 0 0 50% 50% / 20px;
         }
-        .contact-card h1 { text-align: center; color: #1e293b; margin-bottom: 10px; }
-        .contact-card p { text-align: center; color: #64748b; margin-bottom: 30px; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #475569; font-weight: 500; }
+        .contact-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .contact-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* 2. Ana Düzen (Grid) */
+        .contact-container {
+            max-width: 1000px;
+            margin: -60px auto 60px; /* Hero'nun üzerine bindirme efekti */
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 3. Sol Taraf: Bilgi Kutusu */
+        .info-box {
+            background: #1e293b; /* Koyu tema */
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .info-header h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .info-header p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+
+        .contact-details { margin-top: 40px; }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .detail-icon {
+            width: 45px; height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            color: #818cf8;
+        }
+        .detail-text span { display: block; font-size: 0.85rem; color: #94a3b8; }
+        .detail-text strong { font-size: 1rem; }
+
+        .social-media { margin-top: auto; }
+        .social-media h4 { font-size: 0.9rem; margin-bottom: 15px; color: #94a3b8; }
+        .social-icons { display: flex; gap: 15px; }
+        .social-icons a {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px;
+            color: white;
+            transition: 0.3s;
+        }
+        .social-icons a:hover { background: #4f46e5; transform: translateY(-3px); }
+
+
+        /* 4. Sağ Taraf: Form Kutusu */
+        .form-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #334155;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
         .form-group input, .form-group textarea {
-            width: 100%; padding: 12px; border: 1px solid #cbd5e1;
-            border-radius: 8px; font-family: inherit;
+            width: 100%;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            color: #1e293b;
+            transition: 0.3s;
         }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
         .btn-send {
-            width: 100%; padding: 15px; background: #4f46e5; color: white;
-            border: none; border-radius: 10px; font-weight: 600; cursor: pointer;
-            font-size: 1rem; transition: 0.3s;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
-        .btn-send:hover { background: #4338ca; }
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Mobil Uyum */
+        @media (max-width: 768px) {
+            .contact-container { grid-template-columns: 1fr; margin-top: -40px; }
+            .contact-hero { padding-bottom: 60px; }
+            .contact-hero h1 { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
@@ -45,27 +162,83 @@
         </div>
     </nav>
 
-    <section class="contact-section">
-        <div class="contact-card">
-            <h1>Bize Ulaşın 📩</h1>
-            <p>Sorularınız, önerileriniz veya şikayetleriniz için buradayız.</p>
-            
-            <form onsubmit="alert('Mesajınız alındı! En kısa sürede döneceğiz.'); return false;">
+    <header class="contact-hero">
+        <div class="container">
+            <h1>Bizimle İletişime Geçin</h1>
+            <p>Sorularınız, iş birlikleriniz veya sadece merhaba demek için buradayız.</p>
+        </div>
+    </header>
+
+    <section class="contact-container">
+        
+        <div class="info-box">
+            <div class="info-header">
+                <h3>İletişim Bilgileri</h3>
+                <p>Ekibimiz mesajlarınıza en geç 24 saat içinde dönüş yapacaktır. Akademik yolculuğunuzda yanınızdayız.</p>
+            </div>
+
+            <div class="contact-details">
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fa-solid fa-envelope"></i></div>
+                    <div class="detail-text">
+                        <span>E-posta</span>
+                        <strong>destek@uninot.com</strong>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="detail-text">
+                        <span>Konum</span>
+                        <strong>Dijital Kampüs, Türkiye</strong>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fa-solid fa-clock"></i></div>
+                    <div class="detail-text">
+                        <span>Çalışma Saatleri</span>
+                        <strong>7/24 Online Destek</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-media">
+                <h4>Bizi Takip Edin</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-box">
+            <form onsubmit="alert('Mesajınız başarıyla gönderildi! En kısa sürede dönüş yapacağız.'); return false;">
                 <div class="form-group">
                     <label>Adınız Soyadınız</label>
                     <input type="text" required placeholder="Örn: Emirhan Yılmaz">
                 </div>
+                
                 <div class="form-group">
                     <label>E-posta Adresiniz</label>
                     <input type="email" required placeholder="ornek@email.com">
                 </div>
+
+                <div class="form-group">
+                    <label>Konu</label>
+                    <input type="text" required placeholder="Örn: Ödeme sorunu, Not şikayeti...">
+                </div>
+
                 <div class="form-group">
                     <label>Mesajınız</label>
                     <textarea rows="5" required placeholder="Size nasıl yardımcı olabiliriz?"></textarea>
                 </div>
-                <button type="submit" class="btn-send">Mesajı Gönder</button>
+
+                <button type="submit" class="btn-send">
+                    <i class="fa-solid fa-paper-plane"></i> Mesajı Gönder
+                </button>
             </form>
         </div>
+
     </section>
 
     <footer>
