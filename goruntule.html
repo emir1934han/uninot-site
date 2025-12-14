@@ -143,7 +143,7 @@
     <div id="watermark-overlay">
         <div class="watermark-text">
             UniNot.com
-            <span class="watermark-sub" id="wm-username">Kullanıcı</span>
+            
         </div>
     </div>
 
@@ -189,19 +189,17 @@
 
         if (!noteId) { alert("Link hatalı."); window.close(); }
 
-        async function startViewer() {
+      async function startViewer() {
             try {
                 // 1. Kullanıcı Kontrolü
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) { alert("Giriş yapın."); window.close(); return; }
 
-                // İsim Bilgisi
+                // İsim çekmeye artık gerek yok ama yetki için profil lazım olabilir, kalsın.
                 const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
-                const displayName = profile?.full_name ? profile.full_name : user.email;
-
-                // FİLİGRANI GÜNCELLE VE GÖSTER
-                wmUsername.innerText = displayName;
-                watermarkOverlay.style.display = 'flex'; // Filigranı aç
+                
+                // SADECE FİLİGRANI AÇ (İsim yazdırma kodunu sildim)
+                document.getElementById('watermark-overlay').style.display = 'flex'; 
 
                 // 2. Not Bilgisi
                 const { data: note, error } = await supabase.from('notes').select('*').eq('id', noteId).single();
@@ -222,32 +220,25 @@
                 const pathParts = publicUrl.split('/notlar/');
                 const filePath = pathParts[1];
 
-                // Eğer iframe kullanılmayacaksa dosyayı indir
                 if (extension === 'pdf' || extension === 'docx') {
                     const { data: blob, error: dlError } = await supabase.storage.from('notlar').download(filePath);
                     if (dlError) throw dlError;
 
-                    // Blob türünü düzeltmek gerekebilir
+                    // Blob türünü düzelt
                     const cleanBlob = blob.slice(0, blob.size, extension === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
                     const buffer = await cleanBlob.arrayBuffer();
 
-                    // --- PDF İSE ---
                     if (extension === 'pdf') {
-                        // PDF Canvas'ın üzerine CSS filigranı zaten denk geliyor ama 
-                        // Canvas içine de basmak istersen eski renderPDF fonksiyonunu kullanabilirsin.
-                        // Şimdilik sadece CSS filigranı (sabit duran) yeterliyse bu daha performanslıdır.
-                        // Ama senin için Canvas içine basan eski güvenli modu aktif tutuyorum:
-                        watermarkOverlay.style.display = 'none'; // Canvas içine basacağız, overlay'i kapa
-                        renderPDF(buffer, displayName);
+                        // PDF Canvas Modu (Word overlay'ini gizle)
+                        document.getElementById('watermark-overlay').style.display = 'none'; 
+                        renderPDF(buffer);
                     } 
-                    // --- WORD (.docx) İSE ---
                     else if (extension === 'docx') {
-                        renderWord(cleanBlob); // Blob gönderiyoruz
+                        renderWord(cleanBlob);
                     }
                 } 
-                // --- EXCEL/PPT İSE ---
                 else {
-                    watermarkOverlay.style.display = 'none'; // İframe üstüne basamayız
+                    document.getElementById('watermark-overlay').style.display = 'none';
                     renderOfficeViewer(publicUrl);
                 }
 
@@ -258,7 +249,7 @@
         }
 
         // --- PDF RENDER FONKSİYONU ---
-        async function renderPDF(buffer, watermarkText) {
+       async function renderPDF(buffer) {
             const pdf = await pdfjsLib.getDocument(buffer).promise;
             
             for (let i = 1; i <= pdf.numPages; i++) {
@@ -273,7 +264,7 @@
                 
                 await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-                // Canvas Filigranı (Güvenli)
+                // Canvas Filigranı (Sadece Site Adı)
                 ctx.save();
                 ctx.globalAlpha = 0.15;
                 ctx.translate(canvas.width/2, canvas.height/2);
@@ -282,11 +273,8 @@
                 
                 ctx.font = "bold 80px Arial";
                 ctx.fillStyle = "red";
-                ctx.fillText("UniNot.com", 0, -30);
+                ctx.fillText("UniNot.com", 0, 0); // Tam ortaya tek satır
                 
-                ctx.font = "bold 30px Arial";
-                ctx.fillStyle = "#333";
-                ctx.fillText(watermarkText, 0, 40);
                 ctx.restore();
             }
         }
